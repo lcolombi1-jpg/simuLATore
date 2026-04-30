@@ -1,9 +1,9 @@
 import streamlit as st
 
 # Configurazione della pagina
-st.set_page_config(page_title="Latin & Greek Quiz", page_icon="🏛️")
+st.set_page_config(page_title="Latin Quiz", page_icon="🏛️")
 
-st.title("🏛️ Esercitazione di Lingue Classiche")
+st.title("🏛️ Esercitazione di Latino")
 st.write("Completa le frasi scegliendo l'opzione corretta.")
 
 # Database delle domande con nuovo ordine richiesto
