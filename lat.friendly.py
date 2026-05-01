@@ -2,7 +2,7 @@ import streamlit as st
 import random
 
 # 1. Configurazione della pagina (Layout Wide per dare respiro)
-st.set_page_config(page_title="Ludus Latinus", page_icon="🏛️", layout="wide")
+st.set_page_config(page_title="Certamen", page_icon="🏛️", layout="wide")
 
 # 2. Stile personalizzato con CSS per rendere i font più leggibili
 st.markdown("""
