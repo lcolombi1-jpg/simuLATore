@@ -29,18 +29,18 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Sidebar: Status del Milites
+# 3. Sidebar: Status del Miles
 with st.sidebar:
-    # Nuova icona busto (senza scritte errate)
-    st.image("https://img.icons8.com/ios-filled/100/ffffff/roman-buste.png", width=80)
-    st.title("Castrum")
+    
+    st.image("https://share.google/OnOfWzLRXweJcLIIz", width=80)
+    st.title("Miles")
     st.markdown("---")
     
     if 'xp' not in st.session_state:
         st.session_state.xp = 0
     
-    st.write(f"**Grado:** Probatus (Recluta)")
-    st.write(f"**Esperienza:** {st.session_state.xp} XP")
+    st.write(f"**Grado:** Discipulus")
+    
     
     if 'domande' in st.session_state:
         risposte_date = sum(1 for q in st.session_state.domande if st.session_state.get(f"q_{q['id']}") is not None)
