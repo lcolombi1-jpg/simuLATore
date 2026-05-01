@@ -85,6 +85,42 @@ if st.button("Consegna a Cesare ✍️", use_container_width=True, type="primary
     elif punti >= 6:
         st.info("Buon lavoro, ma puoi affinare ancora la tua tecnica. 📖")
     else:
+        st.warning("Per aspera ad astra: ripassa e riprova! ⚔️")        with col_testo:
+            st.markdown(f"**Esercizio {q['id']}**")
+            st.markdown(f"### *{q['testo']}*")
+        
+        with col_scelta:
+            st.radio(
+                "Seleziona la forma:",
+                q['opzioni'],
+                key=f"q_{q['id']}",
+                index=None
+            )
+
+# 6. Correzione finale
+st.markdown("---")
+if st.button("Consegna a Cesare ✍️", use_container_width=True, type="primary"):
+    punti = 0
+    st.header("Esito del Ludus")
+    
+    for q in st.session_state.domande:
+        risposta = st.session_state.get(f"q_{q['id']}")
+        
+        if risposta == q['corretta']:
+            punti += 1
+            st.success(f"Quesito {q['id']}: Ottimo! ✅")
+        else:
+            st.error(f"Quesito {q['id']}: Errato. La forma corretta era '{q['corretta']}' ❌")
+
+    st.divider()
+    st.metric("Punteggio Finale", f"{punti}/10")
+    
+    if punti == 10:
+        st.balloons()
+        st.success("Veni, vidi, vici! Hai completato il test perfettamente! 🎓")
+    elif punti >= 6:
+        st.info("Buon lavoro, ma puoi affinare ancora la tua tecnica. 📖")
+    else:
         st.warning("Per aspera ad astra: ripassa e riprova! ⚔️")        {"id": 7, "testo": "Postquam bellum confectum est, consul ad hostes legatos misit _______ agentes", "opzioni": ["de pacem", "de pace", "ob pacem", "propter pacem"], "corretta": "de pace"},
         {"id": 8, "testo": "Domina armillas ____________ ancillis donabat", "opzioni": ["eximia pulchritudo", "eximiae pulchritudines", "eximiae pulchritudinis", "eximiam pulchritudinem"], "corretta": "eximiae pulchritudinis"},
         {"id": 9, "testo": "Athenis multas effigies deorum ________ vidi", "opzioni": ["marmor", "marmore", "ex marmore", "marmores"], "corretta": "ex marmore"},
