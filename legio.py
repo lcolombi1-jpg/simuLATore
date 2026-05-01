@@ -1,53 +1,74 @@
 import streamlit as st
 
-# 1. Configurazione della pagina
+# 1. Configurazione della pagina - Game Mode
 st.set_page_config(page_title="Legio Latina", page_icon="⚔️", layout="centered")
 
-# 2. CSS per il Look Videogame con contrasto elevato
+# 2. CSS Avanzato per risolvere i difetti di visualizzazione
 st.markdown("""
     <style>
-    /* Font Times New Roman ovunque */
+    /* Forza il font Times New Roman su ogni elemento */
+    @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,700;1,400&display=swap');
+    
     html, body, [class*="st-"], .stMarkdown, h1, h2, h3, h4, p, label {
         font-family: "Times New Roman", Times, serif !important;
     }
-    /* Sfondo scuro ma scritte bianco ghiaccio per massima leggibilità */
+
+    /* Sfondo nero profondo e testo bianco per contrasto videogame */
     .stApp {
-        background-color: #121212;
+        background-color: #0e1117;
         color: #ffffff;
     }
-    /* Stile delle opzioni (radio button) per vederle bene */
-    .stRadio [data-testid="stMarkdownContainer"] p {
+
+    /* Rende le etichette delle risposte (radio buttons) bianche e leggibili */
+    div[data-testid="stWidgetLabel"] p {
         color: #ffffff !important;
-        font-size: 1.1rem;
+        font-size: 1.2rem !important;
     }
-    /* Riquadri delle domande */
-    div[data-testid="stExpander"] {
-        background-color: #1e1e1e;
-        border: 1px solid #3d3d3d;
-        border-radius: 8px;
+    
+    label[data-testid="stWidgetLabel"] {
+        color: #ffffff !important;
+    }
+
+    /* Stile per i contenitori delle domande */
+    .stExpander {
+        background-color: #1a1c23 !important;
+        border: 1px solid #3e4452 !important;
+        border-radius: 10px !important;
+    }
+    
+    /* Bottone primario stile "Battle" */
+    .stButton>button {
+        background-color: #ff4b4b !important;
+        color: white !important;
+        border-radius: 5px;
+        border: none;
+        height: 3em;
+        width: 100%;
+        font-weight: bold;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Sidebar: Status del Miles
+# 3. Sidebar - Il Castrum (Quartier Generale)
 with st.sidebar:
-    
-    st.image("https://share.google/OnOfWzLRXweJcLIIz", width=80)
-    st.title("Miles")
+    # Icona Busto Romano (Nero/Bianco stilizzato)
+    st.image("https://img.icons8.com/ios-filled/100/ffffff/roman-buste.png", width=80)
+    st.title("CASTRUM")
     st.markdown("---")
     
     if 'xp' not in st.session_state:
         st.session_state.xp = 0
     
-    st.write(f"**Grado:** Discipulus")
+    st.write(f"**Status Militis:** Recluta")
+    st.write(f"**XP Totali:** {st.session_state.xp}")
     
-    
+    # Progresso missione
     if 'domande' in st.session_state:
         risposte_date = sum(1 for q in st.session_state.domande if st.session_state.get(f"q_{q['id']}") is not None)
-        st.write(f"Missione: {risposte_date}/10")
+        st.write(f"Conquista: {risposte_date}/10")
         st.progress(risposte_date / 10)
 
-# 4. Database Domande
+# 4. Database Domande (Controllato per errori di sintassi)
 if 'domande' not in st.session_state:
     st.session_state.domande = [
         {"id": 1, "testo": "Tota provincia _____________ occupata erat", "opzioni": ["Ab hostes", "Ad hostes", "Ab hostibus", "Hostibus"], "corretta": "Ab hostibus"},
@@ -58,39 +79,44 @@ if 'domande' not in st.session_state:
         {"id": 6, "testo": "_____________ mansi", "opzioni": ["Romā", "In Romā", "Romam", "Romae"], "corretta": "Romae"},
         {"id": 7, "testo": "Postquam bellum confectum est, consul ad hostes legatos misit _______ agentes", "opzioni": ["de pacem", "de pace", "ob pacem", "propter pacem"], "corretta": "de pace"},
         {"id": 8, "testo": "Domina armillas ____________ ancillis donabat", "opzioni": ["eximia pulchritudo", "eximiae pulchritudines", "eximiae pulchritudinis", "eximiam pulchritudinem"], "corretta": "eximiae pulchritudinis"},
-        {"id": 10, "testo": "Athenis multas effigies deorum ________ vidi", "opzioni": ["marmor", "marmore", "ex marmore", "marmores"], "corretta": "ex marmore"},
-        {"id": 11, "testo": "Pueri _________ verba audient", "opzioni": ["pater", "patres", "patri", "patrum"], "corretta": "patrum"}
+        {"id": 9, "testo": "Athenis multas effigies deorum ________ vidi", "opzioni": ["marmor", "marmore", "ex marmore", "marmores"], "corretta": "ex marmore"},
+        {"id": 10, "testo": "Pueri _________ verba audient", "opzioni": ["pater", "patres", "patri", "patrum"], "corretta": "patrum"}
     ]
 
-# 5. Header Videogame
-col1, col2 = st.columns([1, 4])
-with col1:
+# 5. Header Campagna
+col_img, col_tit = st.columns([1, 4])
+with col_img:
     st.image("https://img.icons8.com/ios/100/ffffff/coliseum.png", width=80)
-with col2:
+with col_tit:
     st.title("LEGIO LATINA")
     st.subheader("La Campagna di Sintassi")
 
 st.markdown("---")
 
-# 6. Area di Battaglia (Domande)
+# 6. Esecuzione Missioni (Domande)
 for q in st.session_state.domande:
-    with st.expander(f"ORDINE DI BATTAGLIA {q['id']}", expanded=True):
+    with st.expander(f"⚜️ SFIDA {q['id']}", expanded=True):
         st.markdown(f"### *{q['testo']}*")
-        # Colore radio button forzato per visibilità
-        st.radio("Seleziona la tua mossa:", q['opzioni'], key=f"q_{q['id']}", index=None, horizontal=True)
+        st.radio(
+            "Scegli la tua mossa:", 
+            q['opzioni'], 
+            key=f"q_{q['id']}", 
+            index=None, 
+            horizontal=True
+        )
 
-# 7. Risultati
+# 7. Esito della Battaglia
 st.markdown("---")
-if st.button("CONSEGNA IL RAPPORTO A CESARE ⚔️", use_container_width=True, type="primary"):
+if st.button("INVIA RAPPORTO A CESARE ⚔️"):
     punti = 0
-    st.write("## Rapporto Finale:")
+    st.write("## 📜 Esito dello Scontro")
     for q in st.session_state.domande:
         risposta = st.session_state.get(f"q_{q['id']}")
         if risposta == q['corretta']:
             punti += 1
-            st.success(f"Domanda {q['id']}: Vittoria! ✅")
+            st.success(f"Sfida {q['id']}: Vittoria Schiacciante! ✅")
         else:
-            st.error(f"Domanda {q['id']}: Sconfitta. La corretta era '{q['corretta']}' ❌")
+            st.error(f"Sfida {q['id']}: Sconfitta. La tattica era '{q['corretta']}' ❌")
     
     st.session_state.xp = punti * 100
     st.divider()
@@ -98,8 +124,8 @@ if st.button("CONSEGNA IL RAPPORTO A CESARE ⚔️", use_container_width=True, t
     if punti == 10:
         st.balloons()
         st.header("TRIUMPHUS! 🏆")
-        st.write("Hai conquistato la gloria eterna. Cesare è fiero di te.")
+        st.write("Hai conquistato Roma. Cesare ti attende per l'alloro.")
     elif punti >= 6:
-        st.info(f"Hai totalizzato {punti}/10. La legione tiene la posizione.")
+        st.info(f"Hai ottenuto {punti}/10. La Legione resiste.")
     else:
-        st.warning(f"Hai totalizzato {punti}/10. Ritirata strategica necessaria.")
+        st.warning(f"Solo {punti}/10. Ritirati nel Castrum per studiare le tattiche.")
