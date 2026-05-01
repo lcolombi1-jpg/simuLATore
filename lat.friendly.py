@@ -3,28 +3,36 @@ import streamlit as st
 # 1. Configurazione della pagina
 st.set_page_config(page_title="Certamen", page_icon="🏛️", layout="wide")
 
-# 2. Stile personalizzato per un look pulito
+# 2. CSS per forzare il Times New Roman e pulire l'interfaccia
 st.markdown("""
     <style>
-    .main { background-color: #f8f9fa; }
-    .stRadio > label { font-weight: bold; color: #1a1a1a; }
+    /* Forza il font Times New Roman su tutta l'app */
+    html, body, [class*="st-"], .stMarkdown, h1, h2, h3, h4, p, label {
+        font-family: "Times New Roman", Times, serif !format;
+    }
+    .main { background-color: #ffffff; }
+    /* Rende i testi delle domande un po' più grandi e solenni */
+    .stMarkdown h3 {
+        font-style: italic;
+        color: #1a1a1a;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Sidebar con il BUSTO DI CESARE
+# 3. Sidebar con Cesare (Link alternativo più stabile)
 with st.sidebar:
-    # Icona stilizzata di Giulio Cesare (Nera)
-    st.image("https://img.icons8.com/ios/100/000000/julius-caesar.png", width=80)
+    # Ho cambiato l'origine dell'immagine per renderla più compatibile
+    st.image("https://img.icons8.com/?size=100&id=23307&format=png&color=000000", width=100)
     st.title("Ave, Discipule!")
     st.markdown("---")
-    st.info("Giulio Cesare osserva i tuoi progressi. Non deluderlo!")
+    st.write("Giulio Cesare osserva la tua prova. Sii preciso come un legionario.")
     
     if 'domande' in st.session_state:
         risposte_date = sum(1 for q in st.session_state.domande if st.session_state.get(f"q_{q['id']}") is not None)
         st.write(f"Progresso: {risposte_date}/10")
         st.progress(risposte_date / 10)
 
-# 4. Inizializzazione Database (dati forniti dall'utente)
+# 4. Inizializzazione Database (10 quesiti)[cite: 1]
 if 'domande' not in st.session_state:
     st.session_state.domande = [
         {"id": 1, "testo": "Tota provincia _____________ occupata erat", "opzioni": ["Ab hostes", "Ad hostes", "Ab hostibus", "Hostibus"], "corretta": "Ab hostibus"},
@@ -41,48 +49,29 @@ if 'domande' not in st.session_state:
 
 # 5. Interfaccia Principale
 st.title("🏛️ Certamen")
-st.caption("Esercitazione interattiva di sintassi e morfologia")
 st.markdown("---")
 
-# Visualizzazione quesiti in box eleganti
 for q in st.session_state.domande:
-    with st.container(border=True):
-        col_testo, col_scelta = st.columns([2, 1])
-        
-        with col_testo:
-            st.markdown(f"**Esercizio {q['id']}**")
-            st.markdown(f"### *{q['testo']}*")
-        
-        with col_scelta:
-            st.radio(
-                "Seleziona la forma:",
-                q['opzioni'],
-                key=f"q_{q['id']}",
-                index=None
-            )
+    with st.container():
+        st.markdown(f"**Esercizio {q['id']}**")
+        st.markdown(f"### {q['testo']}")
+        st.radio("Seleziona la risposta:", q['opzioni'], key=f"q_{q['id']}", index=None, horizontal=True)
+        st.markdown("---")
 
-# 6. Correzione finale
-st.markdown("---")
-if st.button("Consegna a Cesare ✍️", use_container_width=True, type="primary"):
+# 6. Verifica
+if st.button("Consegna il compito ✍️", use_container_width=True, type="primary"):
     punti = 0
-    st.header("Esito del Ludus")
-    
+    st.subheader("Risultati del Ludus:")
     for q in st.session_state.domande:
         risposta = st.session_state.get(f"q_{q['id']}")
-        
         if risposta == q['corretta']:
             punti += 1
-            st.success(f"Quesito {q['id']}: Ottimo! ✅")
+            st.success(f"Quesito {q['id']}: Optime! ✅")
         else:
-            st.error(f"Quesito {q['id']}: Errato. La forma corretta era '{q['corretta']}' ❌")
-
-    st.divider()
-    st.metric("Punteggio Finale", f"{punti}/10")
+            st.error(f"Quesito {q['id']}: Errore. La risposta era '{q['corretta']}' ❌")
     
+    st.divider()
+    st.metric("Punteggio", f"{punti}/10")
     if punti == 10:
         st.balloons()
-        st.success("Veni, vidi, vici! Hai completato il test perfettamente! 🎓")
-    elif punti >= 6:
-        st.info("Buon lavoro, ma puoi affinare ancora la tua tecnica. 📖")
-    else:
-        st.warning("Per aspera ad astra: ripassa e riprova! ⚔️")
+        st.success("Veni, vidi, vici!")
