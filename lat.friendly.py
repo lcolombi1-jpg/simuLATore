@@ -14,7 +14,7 @@ st.markdown("""
 
 # 3. Sidebar per info e progresso
 with st.sidebar:
-    st.image("https://img.icons8.com/ios/100/2ecc71/coliseum.png", width=100, color="black")
+    st.image("https://img.icons8.com/ios/100/2ecc71/coliseum.png", width=100)
     st.title("Statistiche Quiz")
     st.info("Benvenuto! Rispondi a tutte le domande per testare la tua conoscenza del Latino.")
     
