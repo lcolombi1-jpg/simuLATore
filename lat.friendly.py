@@ -14,7 +14,7 @@ st.markdown("""
 
 # 3. Sidebar per info e progresso
 with st.sidebar:
-    st.image("colosseo.png", width=150)
+    st.image("colosseo1.png", width=100)
     st.title("Statistiche Quiz")
     st.info("Benvenuto! Rispondi a tutte le domande per testare la tua conoscenza del Latino.")
     
