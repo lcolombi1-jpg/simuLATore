@@ -71,7 +71,7 @@ if st.button("Consegna a Cesare ✍️", use_container_width=True, type="primary
         st.success("Veni, vidi, vici! Hai completato il test perfettamente! 🎓")        {"id": 8, "testo": "Domina armillas ____________ ancillis donabat", "opzioni": ["eximia pulchritudo", "eximiae pulchritudines", "eximiae pulchritudinis", "eximiam pulchritudinem"], "corretta": "eximiae pulchritudinis"},
         {"id": 9, "testo": "Athenis multas effigies deorum ________ vidi", "opzioni": ["marmor", "marmore", "ex marmore", "marmores"], "corretta": "ex marmore"},
         {"id": 10, "testo": "Pueri _________ verba audient", "opzioni": ["pater", "patres", "patri", "patrum"], "corretta": "patrum"}
-    ]
+    
 
 # 5. Interfaccia Principale
 st.title("🏛️ Certamen")
