@@ -1,30 +1,31 @@
 import streamlit as st
 import random
 
-# 1. Configurazione della pagina (Layout Wide per dare respiro)
-st.set_page_config(page_title="Certamen", page_icon="🏛️", layout="wide")
+# 1. Configurazione della pagina
+st.set_page_config(page_title="Ludus Latinus", page_icon="🏛️", layout="wide")
 
-# 2. Stile personalizzato con CSS per rendere i font più leggibili
+# 2. Stile personalizzato
 st.markdown("""
     <style>
-    .main { background-color: #f5f7f9; }
-    .stRadio > label { font-weight: bold; color: #2c3e50; }
+    .main { background-color: #f8f9fa; }
+    .stRadio > label { font-weight: bold; color: #1a1a1a; }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Sidebar per info e progresso
+# 3. Sidebar con Icona NERA
 with st.sidebar:
-    st.image("colosseo2.png", width=100)
-    st.title("Statistiche Quiz")
-    st.info("Benvenuto! Rispondi a tutte le domande per testare la tua conoscenza del Latino.")
+    # URL aggiornato con codice colore 000000 (Nero)
+    st.image("https://img.icons8.com/ios/100/000000/coliseum.png", width=80)
+    st.title("Pannello di Controllo")
+    st.markdown("---")
+    st.info("Rispondi a tutti i quesiti. La precisione è più importante della velocità!")
     
-    # Calcolo risposte date per la barra di progresso
     if 'domande' in st.session_state:
         risposte_date = sum(1 for q in st.session_state.domande if st.session_state.get(f"q_{q['id']}") is not None)
-        st.write(f"Avanzamento: {risposte_date}/10")
+        st.write(f"Progresso: {risposte_date}/10")
         st.progress(risposte_date / 10)
 
-# 4. Inizializzazione del database (manteniamo l'ordine o randomizziamo)
+# 4. Inizializzazione Database
 if 'domande' not in st.session_state:
     st.session_state.domande = [
         {"id": 1, "testo": "Tota provincia _____________ occupata erat", "opzioni": ["Ab hostes", "Ad hostes", "Ab hostibus", "Hostibus"], "corretta": "Ab hostibus"},
@@ -39,56 +40,47 @@ if 'domande' not in st.session_state:
         {"id": 10, "testo": "Pueri _________ verba audient", "opzioni": ["pater", "patres", "patri", "patrum"], "corretta": "patrum"}
     ]
 
-# 5. Titolo e Intestazione Principale
-st.title("🏛️ Certamen")
+# 5. Corpo principale
+st.title("🏛️ Ludus Latinus")
+st.caption("Verifica le tue competenze sulla sintassi e la morfologia")
 st.markdown("---")
 
-# 6. Visualizzazione Domande con Layout a schede (Contenitori)
 for q in st.session_state.domande:
-    with st.container(border=True): # Crea un riquadro per ogni domanda
-        st.markdown(f"#### Quesito n. {q['id']}")
-        st.markdown(f"**Completa la frase:**")
-        st.info(f"*{q['testo']}*")
+    with st.container(border=True):
+        col_testo, col_scelta = st.columns([2, 1])
         
-        st.radio(
-            "Scegli l'opzione corretta:",
-            q['opzioni'],
-            key=f"q_{q['id']}",
-            index=None,
-            horizontal=True # Opzioni disposte orizzontalmente per risparmiare spazio
-        )
+        with col_testo:
+            st.markdown(f"**Esercizio {q['id']}**")
+            st.write(q['testo'])
+        
+        with col_scelta:
+            st.radio(
+                "Scegli:",
+                q['opzioni'],
+                key=f"q_{q['id']}",
+                index=None,
+                horizontal=False # Verticale per una lettura più pulita nel box piccolo
+            )
 
-# 7. Bottone Finale e Correzione
+# 6. Correzione
 st.markdown("---")
-if st.button("Concludi il compito ✍️", use_container_width=True, type="primary"):
+if st.button("Valuta il mio compito ✍️", use_container_width=True, type="primary"):
     punti = 0
-    
-    # Area risultati
-    st.header("Esito della prova")
+    st.header("Esito della Prova")
     
     for q in st.session_state.domande:
         risposta = st.session_state.get(f"q_{q['id']}")
         
-        with st.expander(f"Dettaglio Domanda {q['id']}", expanded=False):
-            if risposta == q['corretta']:
-                punti += 1
-                st.success(f"Corretto! ✅ Hai scelto '{risposta}'")
-            elif risposta is None:
-                st.warning(f"Non hai risposto. ⚠️ La forma corretta è '{q['corretta']}'")
-            else:
-                st.error(f"Errore ❌ Hai scelto '{risposta}', ma la forma corretta era '{q['corretta']}'")
-
-    # Feedback finale basato sul punteggio
-    col_voto, col_messaggio = st.columns(2)
-    
-    with col_voto:
-        st.metric("Punteggio Finale", f"{punti}/10")
-    
-    with col_messaggio:
-        if punti == 10:
-            st.balloons()
-            st.success("ECCELLENTE! 🏆 Sei un vero esperto di sintassi latina!")
-        elif punti >= 6:
-            st.success("Bravo! Hai raggiunto la sufficienza, ma puoi ancora migliorare! 📖")
+        if risposta == q['corretta']:
+            punti += 1
+            st.success(f"Domanda {q['id']}: Ottimo! ✅")
         else:
-            st.error("Ripassa bene le regole e riprova. Perseverantia vincit! ⚔️")
+            st.error(f"Domanda {q['id']}: Errato. La forma corretta era '{q['corretta']}' ❌")
+
+    st.divider()
+    voto = (punti / 10) * 10
+    st.metric("Punteggio Finale", f"{punti}/10", f"Voto: {voto}/10")
+    
+    if punti == 10:
+        st.balloons()
+        st.success("Ad maiora! Hai completato il test senza errori! 🎓")
