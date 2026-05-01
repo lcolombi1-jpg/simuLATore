@@ -3,7 +3,7 @@ import streamlit as st
 # 1. Configurazione della pagina
 st.set_page_config(page_title="Certamen", page_icon="🏛️", layout="wide")
 
-# 2. Stile CSS per un look professionale
+# 2. CSS per pulizia visiva
 st.markdown("""
     <style>
     .main { background-color: #f8f9fa; }
@@ -11,7 +11,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Sidebar con Cesare (Nero) e Progresso
+# 3. Sidebar con Cesare e Progresso
 with st.sidebar:
     st.image("https://img.icons8.com/ios/100/000000/julius-caesar.png", width=80)
     st.title("Ave, Discipule!")
@@ -23,7 +23,7 @@ with st.sidebar:
         st.write(f"Progresso: {risposte_date}/10")
         st.progress(risposte_date / 10)
 
-# 4. Inizializzazione Database (Controllato riga per riga)
+# 4. Database Domande (10 quesiti)
 if 'domande' not in st.session_state:
     st.session_state.domande = [
         {"id": 1, "testo": "Tota provincia _____________ occupata erat", "opzioni": ["Ab hostes", "Ad hostes", "Ab hostibus", "Hostibus"], "corretta": "Ab hostibus"},
@@ -38,170 +38,33 @@ if 'domande' not in st.session_state:
         {"id": 10, "testo": "Pueri _________ verba audient", "opzioni": ["pater", "patres", "patri", "patrum"], "corretta": "patrum"}
     ]
 
-# 5. Visualizzazione Domande
-st.title("🏛️ Certamen")
-st.caption("Esercitazione interattiva di sintassi e morfologia")
-st.markdown("---")
-
-for q in st.session_state.domande:
-    with st.container(border=True):
-        col_testo, col_scelta = st.columns([2, 1])
-        with col_testo:
-            st.markdown(f"**Esercizio {q['id']}**")
-            st.markdown(f"### *{q['testo']}*")
-        with col_scelta:
-            st.radio("Seleziona la forma:", q['opzioni'], key=f"q_{q['id']}", index=None)
-
-# 6. Correzione finale
-st.markdown("---")
-if st.button("Consegna a Cesare ✍️", use_container_width=True, type="primary"):
-    punti = 0
-    st.header("Esito del Ludus")
-    for q in st.session_state.domande:
-        risposta = st.session_state.get(f"q_{q['id']}")
-        if risposta == q['corretta']:
-            punti += 1
-            st.success(f"Quesito {q['id']}: Ottimo! ✅")
-        else:
-            st.error(f"Quesito {q['id']}: Errato. La forma corretta era '{q['corretta']}' ❌")
-    st.divider()
-    st.metric("Punteggio Finale", f"{punti}/10")
-    if punti == 10:
-        st.balloons()
-        st.success("Veni, vidi, vici! Hai completato il test perfettamente! 🎓")        {"id": 8, "testo": "Domina armillas ____________ ancillis donabat", "opzioni": ["eximia pulchritudo", "eximiae pulchritudines", "eximiae pulchritudinis", "eximiam pulchritudinem"], "corretta": "eximiae pulchritudinis"},
-        {"id": 9, "testo": "Athenis multas effigies deorum ________ vidi", "opzioni": ["marmor", "marmore", "ex marmore", "marmores"], "corretta": "ex marmore"},
-        {"id": 10, "testo": "Pueri _________ verba audient", "opzioni": ["pater", "patres", "patri", "patrum"], "corretta": "patrum"}
-    
-
 # 5. Interfaccia Principale
 st.title("🏛️ Certamen")
 st.caption("Esercitazione interattiva di sintassi e morfologia")
 st.markdown("---")
 
-# Visualizzazione quesiti in box eleganti
 for q in st.session_state.domande:
     with st.container(border=True):
-        col_testo, col_scelta = st.columns([2, 1])
-        
-        with col_testo:
+        col_t, col_s = st.columns([2, 1])
+        with col_t:
             st.markdown(f"**Esercizio {q['id']}**")
             st.markdown(f"### *{q['testo']}*")
-        
-        with col_scelta:
-            st.radio(
-                "Seleziona la forma:",
-                q['opzioni'],
-                key=f"q_{q['id']}",
-                index=None
-            )
+        with col_s:
+            st.radio("Seleziona:", q['opzioni'], key=f"q_{q['id']}", index=None)
 
-# 6. Correzione finale
+# 6. Verifica
 st.markdown("---")
 if st.button("Consegna a Cesare ✍️", use_container_width=True, type="primary"):
     punti = 0
-    st.header("Esito del Ludus")
-    
     for q in st.session_state.domande:
-        risposta = st.session_state.get(f"q_{q['id']}")
-        
-        if risposta == q['corretta']:
-            punti += 1
-            st.success(f"Quesito {q['id']}: Ottimo! ✅")
-        else:
-            st.error(f"Quesito {q['id']}: Errato. La forma corretta era '{q['corretta']}' ❌")
-
-    st.divider()
-    st.metric("Punteggio Finale", f"{punti}/10")
-    
-    if punti == 10:
-        st.balloons()
-        st.success("Veni, vidi, vici! Hai completato il test perfettamente! 🎓")
-    elif punti >= 6:
-        st.info("Buon lavoro, ma puoi affinare ancora la tua tecnica. 📖")
-    else:
-        st.warning("Per aspera ad astra: ripassa e riprova! ⚔️")        with col_testo:
-            st.markdown(f"**Esercizio {q['id']}**")
-            st.markdown(f"### *{q['testo']}*")
-        
-        with col_scelta:
-            st.radio(
-                "Seleziona la forma:",
-                q['opzioni'],
-                key=f"q_{q['id']}",
-                index=None
-            )
-
-# 6. Correzione finale
-st.markdown("---")
-if st.button("Consegna a Cesare ✍️", use_container_width=True, type="primary"):
-    punti = 0
-    st.header("Esito del Ludus")
-    
-    for q in st.session_state.domande:
-        risposta = st.session_state.get(f"q_{q['id']}")
-        
-        if risposta == q['corretta']:
-            punti += 1
-            st.success(f"Quesito {q['id']}: Ottimo! ✅")
-        else:
-            st.error(f"Quesito {q['id']}: Errato. La forma corretta era '{q['corretta']}' ❌")
-
-    st.divider()
-    st.metric("Punteggio Finale", f"{punti}/10")
-    
-    if punti == 10:
-        st.balloons()
-        st.success("Veni, vidi, vici! Hai completato il test perfettamente! 🎓")
-    elif punti >= 6:
-        st.info("Buon lavoro, ma puoi affinare ancora la tua tecnica. 📖")
-    else:
-        st.warning("Per aspera ad astra: ripassa e riprova! ⚔️")        {"id": 7, "testo": "Postquam bellum confectum est, consul ad hostes legatos misit _______ agentes", "opzioni": ["de pacem", "de pace", "ob pacem", "propter pacem"], "corretta": "de pace"},
-        {"id": 8, "testo": "Domina armillas ____________ ancillis donabat", "opzioni": ["eximia pulchritudo", "eximiae pulchritudines", "eximiae pulchritudinis", "eximiam pulchritudinem"], "corretta": "eximiae pulchritudinis"},
-        {"id": 9, "testo": "Athenis multas effigies deorum ________ vidi", "opzioni": ["marmor", "marmore", "ex marmore", "marmores"], "corretta": "ex marmore"},
-        {"id": 10, "testo": "Pueri _________ verba audient", "opzioni": ["pater", "patres", "patri", "patrum"], "corretta": "patrum"}
-    ]
-
-# 5. Corpo principale
-st.title("🏛️ Ludus Latinus")
-st.caption("Verifica le tue competenze sulla sintassi e la morfologia")
-st.markdown("---")
-
-for q in st.session_state.domande:
-    with st.container(border=True):
-        col_testo, col_scelta = st.columns([2, 1])
-        
-        with col_testo:
-            st.markdown(f"**Esercizio {q['id']}**")
-            st.write(q['testo'])
-        
-        with col_scelta:
-            st.radio(
-                "Scegli:",
-                q['opzioni'],
-                key=f"q_{q['id']}",
-                index=None,
-                horizontal=False # Verticale per una lettura più pulita nel box piccolo
-            )
-
-# 6. Correzione
-st.markdown("---")
-if st.button("Valuta il mio compito ✍️", use_container_width=True, type="primary"):
-    punti = 0
-    st.header("Esito della Prova")
-    
-    for q in st.session_state.domande:
-        risposta = st.session_state.get(f"q_{q['id']}")
-        
-        if risposta == q['corretta']:
+        if st.session_state.get(f"q_{q['id']}") == q['corretta']:
             punti += 1
             st.success(f"Domanda {q['id']}: Ottimo! ✅")
         else:
-            st.error(f"Domanda {q['id']}: Errato. La forma corretta era '{q['corretta']}' ❌")
-
-    st.divider()
-    voto = (punti / 10) * 10
-    st.metric("Punteggio Finale", f"{punti}/10", f"Voto: {voto}/10")
+            st.error(f"Domanda {q['id']}: Errato. Era '{q['corretta']}' ❌")
     
+    st.divider()
+    st.metric("Punteggio Finale", f"{punti}/10")
     if punti == 10:
         st.balloons()
-        st.success("Ad maiora! Hai completato il test senza errori! 🎓")
+        st.success("Veni, vidi, vici!")
