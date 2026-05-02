@@ -3,46 +3,65 @@ import streamlit as st
 # 1. Configurazione della pagina
 st.set_page_config(page_title="Legio Latina", page_icon="⚔️", layout="centered")
 
-# 2. CSS Ultra-Aggressivo per i colori
+# 2. CSS "Anti-Bug" e Alta Visibilità
 st.markdown("""
     <style>
-    /* Font Times New Roman */
-    html, body, [class*="st-"], h1, h2, h3, h4, p, label, span {
-        font-family: "Times New Roman", Times, serif !important;
-    }
-    
-    /* Sfondo nero */
-    .stApp {
-        background-color: #121212 !important;
-    }
-    
-    /* FORZA IL TESTO BIANCO SULLE RISPOSTE (RADIO BUTTONS) */
-    .stRadio p, .stRadio label, .stRadio span, div[role="radiogroup"] p {
-        color: #ffffff !important;
-        font-size: 1.15rem !important;
+    /* Usiamo Georgia per un look classico ma leggibile, senza rompere le icone */
+    h1, h2, h3, h4, .stMarkdown p, .stRadio label {
+        font-family: 'Georgia', serif !important;
     }
 
-    /* Colore bianco anche per il testo delle domande */
-    .stMarkdown p, .stMarkdown h3 {
-        color: #ffffff !important;
+    /* Sfondo nero profondo */
+    .stApp {
+        background-color: #0A0A0A !important;
     }
+
+    /* FORZA IL TESTO BIANCO SULLE RISPOSTE (RADIO BUTTONS) */
+    /* Questo risolve il problema del testo grigio illeggibile */
+    div[data-testid="stMarkdownContainer"] p {
+        color: #FFFFFF !important;
+        font-size: 1.1rem !important;
+        font-weight: 500 !important;
+    }
+
+    /* Rende i pallini delle risposte e le etichette più chiari */
+    .stRadio label {
+        color: #FFFFFF !important;
+    }
+
+    /* Box delle domande per dare ordine */
+    div.stBox {
+        background-color: #1A1A1A;
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #333;
+        margin-bottom: 20px;
+    }
+    
+    /* Nasconde caption di errore delle immagini */
+    [data-testid="stImageCaption"] { display: none; }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Sidebar (Castrum / Base)
+# 3. Sidebar - Status Giocatore
 with st.sidebar:
-    # Busto Romano stilizzato bianco per risaltare sul nero
-    st.image("https://img.icons8.com/ios-filled/100/ffffff/roman-buste.png", width=80)
+    # Icona Elmo Romano (più stabile del busto)
+    st.image("https://www.svgrepo.com/show/398188/roman-helmet.svg", width=80)
     st.title("Castrum")
     st.markdown("---")
     
     if 'xp' not in st.session_state:
         st.session_state.xp = 0
-        
-    st.write(f"**Grado:** Legionario")
+    
+    st.write(f"**Legionario:** Discipulus")
     st.write(f"**Esperienza:** {st.session_state.xp} XP")
+    
+    if 'domande' in st.session_state:
+        fatte = sum(1 for q in st.session_state.domande if st.session_state.get(f"ans_{q['id']}") is not None)
+        st.progress(fatte / 10)
+        st.write(f"Avanzamento: {fatte}/10")
 
-# 4. Database Domande
+# 4. Database Domande (Controllato e Pulito)
 if 'domande' not in st.session_state:
     st.session_state.domande = [
         {"id": 1, "t": "Tota provincia _____________ occupata erat", "o": ["Ab hostes", "Ad hostes", "Ab hostibus", "Hostibus"], "c": "Ab hostibus"},
@@ -57,48 +76,42 @@ if 'domande' not in st.session_state:
         {"id": 10, "t": "Pueri _________ verba audient", "o": ["pater", "patres", "patri", "patrum"], "c": "patrum"}
     ]
 
-# 5. Intestazione Principale
-col_img, col_testo = st.columns([1, 4])
-with col_img:
-    # Schizzo del Colosseo stilizzato
-    st.image("https://img.icons8.com/ios/100/ffffff/coliseum.png", width=80)
-with col_testo:
+# 5. Header Campagna
+col1, col2 = st.columns([1, 4])
+with col1:
+    # Schizzo Colosseo SVG (Bianco)
+    st.image("https://www.svgrepo.com/show/396030/colosseum.svg", width=80)
+with col2:
     st.title("LEGIO LATINA")
-    st.subheader("Campagna di Sintassi")
+    st.subheader("La Conquista della Sintassi")
+
 st.markdown("---")
 
-# 6. Area di Gioco (Domande in formato scheda semplice)
+# 6. Schermata di Battaglia
 for q in st.session_state.domande:
     st.markdown(f"### ⚔️ Sfida {q['id']}")
     st.markdown(f"**{q['t']}**")
-    # Menu di scelta semplice (ho rimosso "horizontal=True" per non accavallare i testi sui telefoni)
-    st.radio("Seleziona:", q['o'], key=f"ans_{q['id']}", index=None)
+    # Radio button con chiave unica
+    st.radio("Seleziona la mossa:", q['o'], key=f"ans_{q['id']}", index=None)
     st.markdown("---")
 
-# 7. Valutazione
+# 7. Risultati Finali
 if st.button("TERMINA LA BATTAGLIA 🛡️", use_container_width=True, type="primary"):
     punti = 0
-    st.markdown("## 📜 Rapporto di Battaglia")
+    st.markdown("## 📜 Rapporto di Cesare")
     
     for q in st.session_state.domande:
-        risposta_data = st.session_state.get(f"ans_{q['id']}")
-        
-        if risposta_data == q['c']:
+        risp = st.session_state.get(f"ans_{q['id']}")
+        if risp == q['c']:
             punti += 1
-            st.success(f"Sfida {q['id']}: VITTORIA! Hai scelto correttamente '{q['c']}'. ✅")
-        elif risposta_data is None:
-            st.warning(f"Sfida {q['id']}: NON AFFRONTATA. La tattica giusta era '{q['c']}'. ⚠️")
+            st.success(f"Sfida {q['id']}: VITTORIA! ✅")
         else:
-            st.error(f"Sfida {q['id']}: SCONFITTA. Hai scelto '{risposta_data}', ma era '{q['c']}'. ❌")
-            
+            st.error(f"Sfida {q['id']}: DISFATTA. La mossa corretta era '{q['c']}' ❌")
+    
     st.session_state.xp = punti * 100
     st.divider()
-    st.metric("Punteggio XP", f"{st.session_state.xp}")
+    st.metric("XP GUADAGNATI", f"{st.session_state.xp}")
     
     if punti == 10:
         st.balloons()
-        st.success("TRIUMPHUS! 🏆 Hai annientato gli errori. Cesare ti onora.")
-    elif punti >= 6:
-        st.info("La legione avanza. Hai superato la prova, ma non abbassare la guardia.")
-    else:
-        st.warning("Gravi perdite. Torna agli accampamenti e ripassa i manuali.")
+        st.success("TRIUMPHUS! Cesare ti attende a Roma! 🏆")
