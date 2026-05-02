@@ -3,30 +3,28 @@ import streamlit as st
 # 1. Configurazione della pagina
 st.set_page_config(page_title="Legio Latina", page_icon="⚔️", layout="centered")
 
-# 2. CSS Sicuro (Non rompe le icone di sistema)
+# 2. CSS Ultra-Aggressivo per i colori
 st.markdown("""
     <style>
-    /* Applica il font antico SOLO ai testi (titoli e paragrafi), proteggendo i widget di sistema */
-    h1, h2, h3, h4, p {
+    /* Font Times New Roman */
+    html, body, [class*="st-"], h1, h2, h3, h4, p, label, span {
         font-family: "Times New Roman", Times, serif !important;
     }
     
-    /* Colori di base stile Videogame Dark */
+    /* Sfondo nero */
     .stApp {
-        background-color: #121212;
-        color: #ffffff;
+        background-color: #121212 !important;
     }
     
-    /* Forza il testo bianco sulle risposte per garantirne la lettura al buio */
-    div[data-baseweb="radio"] {
-        background-color: #1e1e1e;
-        padding: 15px;
-        border-radius: 8px;
-        border: 1px solid #333333;
-    }
-    div[data-baseweb="radio"] p {
+    /* FORZA IL TESTO BIANCO SULLE RISPOSTE (RADIO BUTTONS) */
+    .stRadio p, .stRadio label, .stRadio span, div[role="radiogroup"] p {
         color: #ffffff !important;
-        font-size: 1.1rem;
+        font-size: 1.15rem !important;
+    }
+
+    /* Colore bianco anche per il testo delle domande */
+    .stMarkdown p, .stMarkdown h3 {
+        color: #ffffff !important;
     }
     </style>
     """, unsafe_allow_html=True)
