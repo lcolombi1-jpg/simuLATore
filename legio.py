@@ -1,36 +1,58 @@
 import streamlit as st
 
-# 1. Configurazione base
-st.set_page_config(page_title="Legio Latina", page_icon="⚔️")
+# 1. Configurazione della pagina (Stile Videogame)
+st.set_page_config(page_title="Legio Latina", page_icon="⚔️", layout="centered")
 
-# 2. CSS Semplificato (evitiamo errori di parsing)
+# 2. CSS per eliminare difetti e forzare il Times New Roman
 st.markdown("""
     <style>
-    /* Font Times New Roman */
+    /* Forza il font Times New Roman ovunque */
     html, body, [class*="st-"], .stMarkdown, h1, h2, h3, h4, p, label {
         font-family: "Times New Roman", Times, serif !important;
     }
-    /* Sfondo scuro e testo chiaro per leggibilità videogame */
+    
+    /* Sfondo nero e testo bianco per il contrasto */
     .stApp {
-        background-color: #111111;
+        background-color: #000000;
         color: #ffffff;
     }
-    /* Forza il colore bianco per le opzioni del radio button */
+
+    /* Rende le risposte (label dei radio button) bianche e ben visibili */
     div[data-testid="stMarkdownContainer"] p {
         color: #ffffff !important;
+        font-size: 1.2rem !important;
+    }
+
+    /* Riquadri delle domande stile 'scheda' */
+    .stColumn {
+        padding: 10px;
+    }
+    
+    /* Nasconde eventuali scritte residue dei widget */
+    [data-testid="stImageCaption"] {
+        display: none;
     }
     </style>
     """, unsafe_allow_html=True)
 
 # 3. Sidebar (Quartier Generale)
 with st.sidebar:
-    st.image("https://img.icons8.com/ios-filled/100/ffffff/roman-buste.png", width=80)
-    st.title("Castrum")
+    # Usiamo un'immagine con link diretto pulito per evitare scritte "keyboard"
+    st.image("https://www.svgrepo.com/show/398188/roman-helmet.svg", width=80)
+    st.title("CASTRUM")
+    st.markdown("---")
+    
     if 'xp' not in st.session_state:
         st.session_state.xp = 0
-    st.write(f"Esperienza: {st.session_state.xp} XP")
+    
+    st.write(f"**Esperienza Totale:** {st.session_state.xp} XP")
+    
+    if 'domande' in st.session_state:
+        risposte_date = sum(1 for q in st.session_state.domande if st.session_state.get(f"ans_{q['id']}") is not None)
+        st.progress(risposte_date / 10)
+        st.write(f"Conquista: {risposte_date}/10")
 
-# 4. Database Domande (Verificato 1 per 1)
+# 4. Database Domande (Controllato e Semplificato)
 if 'domande' not in st.session_state:
     st.session_state.domande = [
         {"id": 1, "t": "Tota provincia _____________ occupata erat", "o": ["Ab hostes", "Ad hostes", "Ab hostibus", "Hostibus"], "c": "Ab hostibus"},
@@ -45,28 +67,44 @@ if 'domande' not in st.session_state:
         {"id": 10, "t": "Pueri _________ verba audient", "o": ["pater", "patres", "patri", "patrum"], "c": "patrum"}
     ]
 
-# 5. Interfaccia
-st.title("⚔️ LEGIO LATINA")
-st.write("Completa la missione, soldato. Cesare ti osserva.")
+# 5. Header Campagna (Titolo e Schizzo Colosseo)
+col_logo, col_titolo = st.columns([1, 4])
+with col_logo:
+    # Schizzo del Colosseo in bianco (per risaltare sul nero)
+    st.image("https://www.svgrepo.com/show/396030/colosseum.svg", width=90)
+with col_titolo:
+    st.title("LEGIO LATINA")
+    st.subheader("La Campagna di Sintassi")
 
+st.markdown("---")
+
+# 6. Esecuzione del Gioco
 for q in st.session_state.domande:
-    with st.container():
-        st.markdown(f"### Sfida {q['id']}")
-        st.write(f"**{q['t']}**")
-        st.radio("Scegli:", q['o'], key=f"ans_{q['id']}", index=None, horizontal=True)
-        st.markdown("---")
+    st.markdown(f"#### ⚔️ SFIDA {q['id']}")
+    st.markdown(f"**{q['t']}**")
+    st.radio("Seleziona la tua arma:", q['o'], key=f"ans_{q['id']}", index=None, horizontal=True)
+    st.markdown("---")
 
-# 6. Conclusione
-if st.button("CONSEGNA IL RAPPORTO", type="primary", use_container_width=True):
+# 7. Esito della Battaglia
+if st.button("INVIA RAPPORTO A CESARE ✍️", use_container_width=True, type="primary"):
     punti = 0
+    st.markdown("### 📜 Esito dello scontro:")
     for q in st.session_state.domande:
-        risp = st.session_state.get(f"ans_{q['id']}")
-        if risp == q['c']:
+        risposta = st.session_state.get(f"ans_{q['id']}")
+        if risposta == q['c']:
             punti += 1
-            st.success(f"Domanda {q['id']}: Vittoria!")
+            st.success(f"Sfida {q['id']}: Vittoria! ✅")
         else:
-            st.error(f"Domanda {q['id']}: Sconfitta. Era '{q['c']}'")
+            st.error(f"Sfida {q['id']}: Sconfitta. Era '{q['c']}' ❌")
     
     st.session_state.xp = punti * 100
-    st.metric("Punteggio", f"{punti}/10")
-    if punti == 10: st.balloons()
+    st.divider()
+    st.metric("XP GUADAGNATI", f"{st.session_state.xp}")
+    
+    if punti == 10:
+        st.balloons()
+        st.header("TRIUMPHUS! 🏆")
+    elif punti >= 6:
+        st.info("La Legione resiste. Continua così!")
+    else:
+        st.warning("Ritirata strategica! Ripassa la sintassi.")
