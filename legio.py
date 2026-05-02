@@ -1,67 +1,48 @@
 import streamlit as st
 
-# 1. Configurazione della pagina
-st.set_page_config(page_title="Legio Latina", page_icon="⚔️", layout="centered")
+# 1. Configurazione della pagina - Look moderno e pulito
+st.set_page_config(page_title="Ludus Latinus", page_icon="🏛️", layout="centered")
 
-# 2. CSS "Anti-Bug" e Alta Visibilità
+# 2. CSS Minimale per la leggibilità (Niente che rompa le icone)
 st.markdown("""
     <style>
-    /* Usiamo Georgia per un look classico ma leggibile, senza rompere le icone */
-    h1, h2, h3, h4, .stMarkdown p, .stRadio label {
-        font-family: 'Georgia', serif !important;
+    /* Font moderno e pulito */
+    html, body, [class*="st-"] {
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
-
-    /* Sfondo nero profondo */
+    /* Sfondo chiaro e riposante */
     .stApp {
-        background-color: #0A0A0A !important;
+        background-color: #Fbfffe;
     }
-
-    /* FORZA IL TESTO BIANCO SULLE RISPOSTE (RADIO BUTTONS) */
-    /* Questo risolve il problema del testo grigio illeggibile */
-    div[data-testid="stMarkdownContainer"] p {
-        color: #FFFFFF !important;
-        font-size: 1.1rem !important;
-        font-weight: 500 !important;
+    /* Card delle domande: bianche con ombra leggera (stile Instagram/Notion) */
+    div.stButton > button:first-child {
+        background-color: #6366f1;
+        color: white;
+        border-radius: 8px;
     }
-
-    /* Rende i pallini delle risposte e le etichette più chiari */
-    .stRadio label {
-        color: #FFFFFF !important;
-    }
-
-    /* Box delle domande per dare ordine */
-    div.stBox {
-        background-color: #1A1A1A;
+    .question-card {
+        background-color: white;
         padding: 20px;
-        border-radius: 10px;
-        border: 1px solid #333;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         margin-bottom: 20px;
+        border: 1px solid #e0e7ff;
     }
-    
-    /* Nasconde caption di errore delle immagini */
-    [data-testid="stImageCaption"] { display: none; }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Sidebar - Status Giocatore
+# 3. Sidebar - Progresso e Voto
 with st.sidebar:
-    # Icona Elmo Romano (più stabile del busto)
-    st.image("https://www.svgrepo.com/show/398188/roman-helmet.svg", width=80)
-    st.title("Castrum")
-    st.markdown("---")
-    
-    if 'xp' not in st.session_state:
-        st.session_state.xp = 0
-    
-    st.write(f"**Legionario:** Discipulus")
-    st.write(f"**Esperienza:** {st.session_state.xp} XP")
+    st.title("🏛️ Hub Studente")
+    st.write("Mettiti alla prova con la sintassi latina.")
+    st.divider()
     
     if 'domande' in st.session_state:
-        fatte = sum(1 for q in st.session_state.domande if st.session_state.get(f"ans_{q['id']}") is not None)
-        st.progress(fatte / 10)
-        st.write(f"Avanzamento: {fatte}/10")
+        risposte_date = sum(1 for q in st.session_state.domande if st.session_state.get(f"ans_{q['id']}") is not None)
+        st.write(f"Completamento: **{risposte_date}/10**")
+        st.progress(risposte_date / 10)
 
-# 4. Database Domande (Controllato e Pulito)
+# 4. Database Domande (Controllato e robusto)
 if 'domande' not in st.session_state:
     st.session_state.domande = [
         {"id": 1, "t": "Tota provincia _____________ occupata erat", "o": ["Ab hostes", "Ad hostes", "Ab hostibus", "Hostibus"], "c": "Ab hostibus"},
@@ -76,42 +57,43 @@ if 'domande' not in st.session_state:
         {"id": 10, "t": "Pueri _________ verba audient", "o": ["pater", "patres", "patri", "patrum"], "c": "patrum"}
     ]
 
-# 5. Header Campagna
-col1, col2 = st.columns([1, 4])
-with col1:
-    # Schizzo Colosseo SVG (Bianco)
-    st.image("https://www.svgrepo.com/show/396030/colosseum.svg", width=80)
-with col2:
-    st.title("LEGIO LATINA")
-    st.subheader("La Conquista della Sintassi")
+# 5. Interfaccia Principale
+st.title("🎓 Simulatore di Latino")
+st.write("Scegli l'opzione corretta per completare la frase. *Audentes fortuna iuvat!*")
+st.divider()
 
-st.markdown("---")
-
-# 6. Schermata di Battaglia
+# Ciclo delle domande
 for q in st.session_state.domande:
-    st.markdown(f"### ⚔️ Sfida {q['id']}")
-    st.markdown(f"**{q['t']}**")
-    # Radio button con chiave unica
-    st.radio("Seleziona la mossa:", q['o'], key=f"ans_{q['id']}", index=None)
-    st.markdown("---")
+    # Usiamo st.container per creare l'effetto "card"
+    with st.container():
+        st.markdown(f"### Esercizio {q['id']}")
+        st.markdown(f"**{q['t']}**")
+        st.radio("Seleziona la risposta:", q['o'], key=f"ans_{q['id']}", index=None)
+        st.markdown("---")
 
-# 7. Risultati Finali
-if st.button("TERMINA LA BATTAGLIA 🛡️", use_container_width=True, type="primary"):
+# 6. Bottone Correzione
+if st.button("Verifica il mio livello ✍️", use_container_width=True):
     punti = 0
-    st.markdown("## 📜 Rapporto di Cesare")
+    st.header("Riepilogo Risultati")
     
     for q in st.session_state.domande:
-        risp = st.session_state.get(f"ans_{q['id']}")
-        if risp == q['c']:
+        scelta = st.session_state.get(f"ans_{q['id']}")
+        if scelta == q['c']:
             punti += 1
-            st.success(f"Sfida {q['id']}: VITTORIA! ✅")
+            st.success(f"Domanda {q['id']}: Esatto! ✅")
         else:
-            st.error(f"Sfida {q['id']}: DISFATTA. La mossa corretta era '{q['c']}' ❌")
+            st.error(f"Domanda {q['id']}: Errore. La risposta era '{q['c']}' ❌")
     
-    st.session_state.xp = punti * 100
+    # Calcolo voto in decimi (classico scolastico)
+    voto = punti
     st.divider()
-    st.metric("XP GUADAGNATI", f"{st.session_state.xp}")
     
-    if punti == 10:
+    col1, col2 = st.columns(2)
+    col1.metric("Risposte Corrette", f"{punti}/10")
+    col2.metric("Voto Finale", f"{voto}/10")
+
+    if voto >= 6:
         st.balloons()
-        st.success("TRIUMPHUS! Cesare ti attende a Roma! 🏆")
+        st.success("Ottimo lavoro! Hai superato la prova. 🏛️")
+    else:
+        st.warning("Non mollare! Un po' di ripasso e sarai imbattibile. 📖")
