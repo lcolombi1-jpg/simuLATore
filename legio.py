@@ -1,58 +1,50 @@
 import streamlit as st
 
-# 1. Configurazione della pagina (Stile Videogame)
+# 1. Configurazione della pagina
 st.set_page_config(page_title="Legio Latina", page_icon="⚔️", layout="centered")
 
-# 2. CSS per eliminare difetti e forzare il Times New Roman
+# 2. CSS Sicuro (Non rompe le icone di sistema)
 st.markdown("""
     <style>
-    /* Forza il font Times New Roman ovunque */
-    html, body, [class*="st-"], .stMarkdown, h1, h2, h3, h4, p, label {
+    /* Applica il font antico SOLO ai testi (titoli e paragrafi), proteggendo i widget di sistema */
+    h1, h2, h3, h4, p {
         font-family: "Times New Roman", Times, serif !important;
     }
     
-    /* Sfondo nero e testo bianco per il contrasto */
+    /* Colori di base stile Videogame Dark */
     .stApp {
-        background-color: #000000;
+        background-color: #121212;
         color: #ffffff;
     }
-
-    /* Rende le risposte (label dei radio button) bianche e ben visibili */
-    div[data-testid="stMarkdownContainer"] p {
-        color: #ffffff !important;
-        font-size: 1.2rem !important;
-    }
-
-    /* Riquadri delle domande stile 'scheda' */
-    .stColumn {
-        padding: 10px;
-    }
     
-    /* Nasconde eventuali scritte residue dei widget */
-    [data-testid="stImageCaption"] {
-        display: none;
+    /* Forza il testo bianco sulle risposte per garantirne la lettura al buio */
+    div[data-baseweb="radio"] {
+        background-color: #1e1e1e;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #333333;
+    }
+    div[data-baseweb="radio"] p {
+        color: #ffffff !important;
+        font-size: 1.1rem;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Sidebar (Quartier Generale)
+# 3. Sidebar (Castrum / Base)
 with st.sidebar:
-    # Usiamo un'immagine con link diretto pulito per evitare scritte "keyboard"
-    st.image("https://www.svgrepo.com/show/398188/roman-helmet.svg", width=80)
-    st.title("CASTRUM")
+    # Busto Romano stilizzato bianco per risaltare sul nero
+    st.image("https://img.icons8.com/ios-filled/100/ffffff/roman-buste.png", width=80)
+    st.title("Castrum")
     st.markdown("---")
     
     if 'xp' not in st.session_state:
         st.session_state.xp = 0
-    
-    st.write(f"**Esperienza Totale:** {st.session_state.xp} XP")
-    
-    if 'domande' in st.session_state:
-        risposte_date = sum(1 for q in st.session_state.domande if st.session_state.get(f"ans_{q['id']}") is not None)
-        st.progress(risposte_date / 10)
-        st.write(f"Conquista: {risposte_date}/10")
+        
+    st.write(f"**Grado:** Legionario")
+    st.write(f"**Esperienza:** {st.session_state.xp} XP")
 
-# 4. Database Domande (Controllato e Semplificato)
+# 4. Database Domande
 if 'domande' not in st.session_state:
     st.session_state.domande = [
         {"id": 1, "t": "Tota provincia _____________ occupata erat", "o": ["Ab hostes", "Ad hostes", "Ab hostibus", "Hostibus"], "c": "Ab hostibus"},
@@ -67,44 +59,48 @@ if 'domande' not in st.session_state:
         {"id": 10, "t": "Pueri _________ verba audient", "o": ["pater", "patres", "patri", "patrum"], "c": "patrum"}
     ]
 
-# 5. Header Campagna (Titolo e Schizzo Colosseo)
-col_logo, col_titolo = st.columns([1, 4])
-with col_logo:
-    # Schizzo del Colosseo in bianco (per risaltare sul nero)
-    st.image("https://www.svgrepo.com/show/396030/colosseum.svg", width=90)
-with col_titolo:
+# 5. Intestazione Principale
+col_img, col_testo = st.columns([1, 4])
+with col_img:
+    # Schizzo del Colosseo stilizzato
+    st.image("https://img.icons8.com/ios/100/ffffff/coliseum.png", width=80)
+with col_testo:
     st.title("LEGIO LATINA")
-    st.subheader("La Campagna di Sintassi")
-
+    st.subheader("Campagna di Sintassi")
 st.markdown("---")
 
-# 6. Esecuzione del Gioco
+# 6. Area di Gioco (Domande in formato scheda semplice)
 for q in st.session_state.domande:
-    st.markdown(f"#### ⚔️ SFIDA {q['id']}")
+    st.markdown(f"### ⚔️ Sfida {q['id']}")
     st.markdown(f"**{q['t']}**")
-    st.radio("Seleziona la tua arma:", q['o'], key=f"ans_{q['id']}", index=None, horizontal=True)
+    # Menu di scelta semplice (ho rimosso "horizontal=True" per non accavallare i testi sui telefoni)
+    st.radio("Seleziona:", q['o'], key=f"ans_{q['id']}", index=None)
     st.markdown("---")
 
-# 7. Esito della Battaglia
-if st.button("INVIA RAPPORTO A CESARE ✍️", use_container_width=True, type="primary"):
+# 7. Valutazione
+if st.button("TERMINA LA BATTAGLIA 🛡️", use_container_width=True, type="primary"):
     punti = 0
-    st.markdown("### 📜 Esito dello scontro:")
-    for q in st.session_state.domande:
-        risposta = st.session_state.get(f"ans_{q['id']}")
-        if risposta == q['c']:
-            punti += 1
-            st.success(f"Sfida {q['id']}: Vittoria! ✅")
-        else:
-            st.error(f"Sfida {q['id']}: Sconfitta. Era '{q['c']}' ❌")
+    st.markdown("## 📜 Rapporto di Battaglia")
     
+    for q in st.session_state.domande:
+        risposta_data = st.session_state.get(f"ans_{q['id']}")
+        
+        if risposta_data == q['c']:
+            punti += 1
+            st.success(f"Sfida {q['id']}: VITTORIA! Hai scelto correttamente '{q['c']}'. ✅")
+        elif risposta_data is None:
+            st.warning(f"Sfida {q['id']}: NON AFFRONTATA. La tattica giusta era '{q['c']}'. ⚠️")
+        else:
+            st.error(f"Sfida {q['id']}: SCONFITTA. Hai scelto '{risposta_data}', ma era '{q['c']}'. ❌")
+            
     st.session_state.xp = punti * 100
     st.divider()
-    st.metric("XP GUADAGNATI", f"{st.session_state.xp}")
+    st.metric("Punteggio XP", f"{st.session_state.xp}")
     
     if punti == 10:
         st.balloons()
-        st.header("TRIUMPHUS! 🏆")
+        st.success("TRIUMPHUS! 🏆 Hai annientato gli errori. Cesare ti onora.")
     elif punti >= 6:
-        st.info("La Legione resiste. Continua così!")
+        st.info("La legione avanza. Hai superato la prova, ma non abbassare la guardia.")
     else:
-        st.warning("Ritirata strategica! Ripassa la sintassi.")
+        st.warning("Gravi perdite. Torna agli accampamenti e ripassa i manuali.")
