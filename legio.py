@@ -1,48 +1,56 @@
 import streamlit as st
 
-# 1. Configurazione della pagina - Look moderno e pulito
+# 1. Configurazione della pagina
 st.set_page_config(page_title="Ludus Latinus", page_icon="🏛️", layout="centered")
 
-# 2. CSS Minimale per la leggibilità (Niente che rompa le icone)
+# 2. CSS mirato: Solo estetica, niente che rompa le icone
 st.markdown("""
     <style>
-    /* Font moderno e pulito */
-    html, body, [class*="st-"] {
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    }
-    /* Sfondo chiaro e riposante */
+    /* Sfondo neutro e riposante */
     .stApp {
-        background-color: #Fbfffe;
+        background-color: #F8FAFC;
     }
-    /* Card delle domande: bianche con ombra leggera (stile Instagram/Notion) */
-    div.stButton > button:first-child {
-        background-color: #6366f1;
-        color: white;
-        border-radius: 8px;
+    
+    /* Card per le domande: stile pulito e moderno */
+    div.stBox {
+        background-color: #FFFFFF;
+        padding: 25px;
+        border-radius: 15px;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 25px;
     }
-    .question-card {
-        background-color: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        margin-bottom: 20px;
-        border: 1px solid #e0e7ff;
+
+    /* Titoli più eleganti */
+    h1, h2, h3 {
+        color: #1E293B;
+        font-weight: 700;
+    }
+
+    /* Bottone di verifica stile "App" */
+    .stButton > button {
+        width: 100%;
+        background-color: #4F46E5 !important;
+        color: white !important;
+        border-radius: 10px !important;
+        padding: 15px !important;
+        font-weight: bold !important;
+        border: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Sidebar - Progresso e Voto
+# 3. Sidebar minimale
 with st.sidebar:
     st.title("🏛️ Hub Studente")
-    st.write("Mettiti alla prova con la sintassi latina.")
+    st.write("Verifica le tue competenze in sintassi latina.")
     st.divider()
-    
     if 'domande' in st.session_state:
-        risposte_date = sum(1 for q in st.session_state.domande if st.session_state.get(f"ans_{q['id']}") is not None)
-        st.write(f"Completamento: **{risposte_date}/10**")
-        st.progress(risposte_date / 10)
+        fatte = sum(1 for q in st.session_state.domande if st.session_state.get(f"ans_{q['id']}") is not None)
+        st.write(f"Avanzamento: **{fatte}/10**")
+        st.progress(fatte / 10)
 
-# 4. Database Domande (Controllato e robusto)
+# 4. Database Domande
 if 'domande' not in st.session_state:
     st.session_state.domande = [
         {"id": 1, "t": "Tota provincia _____________ occupata erat", "o": ["Ab hostes", "Ad hostes", "Ab hostibus", "Hostibus"], "c": "Ab hostibus"},
@@ -57,43 +65,41 @@ if 'domande' not in st.session_state:
         {"id": 10, "t": "Pueri _________ verba audient", "o": ["pater", "patres", "patri", "patrum"], "c": "patrum"}
     ]
 
-# 5. Interfaccia Principale
+# 5. Contenuto Principale
 st.title("🎓 Simulatore di Latino")
-st.write("Scegli l'opzione corretta per completare la frase. *Audentes fortuna iuvat!*")
+st.write("Seleziona la forma corretta per completare la frase.")
 st.divider()
 
-# Ciclo delle domande
+# Visualizzazione card domande
 for q in st.session_state.domande:
-    # Usiamo st.container per creare l'effetto "card"
+    # Usiamo un container per ogni domanda
     with st.container():
-        st.markdown(f"### Esercizio {q['id']}")
-        st.markdown(f"**{q['t']}**")
-        st.radio("Seleziona la risposta:", q['o'], key=f"ans_{q['id']}", index=None)
-        st.markdown("---")
+        st.subheader(f"Esercizio {q['id']}")
+        st.write(f"**{q['t']}**")
+        st.radio("Scegli l'opzione:", q['o'], key=f"ans_{q['id']}", index=None)
+        st.write("") # Spaziatore
+        st.divider()
 
-# 6. Bottone Correzione
-if st.button("Verifica il mio livello ✍️", use_container_width=True):
+# 6. Bottone Risultati
+if st.button("Verifica il mio livello ✍️"):
     punti = 0
-    st.header("Riepilogo Risultati")
+    st.header("Riepilogo Esito")
     
     for q in st.session_state.domande:
         scelta = st.session_state.get(f"ans_{q['id']}")
         if scelta == q['c']:
             punti += 1
-            st.success(f"Domanda {q['id']}: Esatto! ✅")
+            st.success(f"Esercizio {q['id']}: Corretto ✅")
         else:
-            st.error(f"Domanda {q['id']}: Errore. La risposta era '{q['c']}' ❌")
+            st.error(f"Esercizio {q['id']}: Errato (Era '{q['c']}') ❌")
     
-    # Calcolo voto in decimi (classico scolastico)
-    voto = punti
     st.divider()
-    
     col1, col2 = st.columns(2)
-    col1.metric("Risposte Corrette", f"{punti}/10")
-    col2.metric("Voto Finale", f"{voto}/10")
+    col1.metric("Risposte Esatte", f"{punti}/10")
+    col2.metric("Voto Finale", f"{punti}/10")
 
-    if voto >= 6:
+    if punti >= 6:
         st.balloons()
-        st.success("Ottimo lavoro! Hai superato la prova. 🏛️")
+        st.success("Bravo/a! Hai superato la prova. 🏛️")
     else:
-        st.warning("Non mollare! Un po' di ripasso e sarai imbattibile. 📖")
+        st.warning("Serve un po' di ripasso. Non mollare! 📖")
