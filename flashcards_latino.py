@@ -1,55 +1,54 @@
 import re
 import random
 
-# Inseriamo una parte del testo che hai fornito come esempio
-# In un caso reale, potresti leggere questo testo da un file .txt
-testo_lessico = """
-(20) ācer -acris -acre agg. [*hek- "punta"]: acuto, acre, pungente
-ăcẽo -cũi -ēre 2 intr. [*h2ek- "punta"]: essere acido
-ăciēs -ēi f. [*h2ek- "punta"]: punta, spada, acutezza
-ăcus' -ūs f. [acer²]: ago
-ăcūtus-a-um agg. [acuo]: aguzzo, acuto, pungente
-"""
-
 def crea_flashcards(testo):
     flashcards = []
-    
-    # Questa espressione regolare cerca:
-    # 1. Il lemma e il paradigma (tutto ciò che precede la parentesi quadra '[')
-    # 2. Salta l'etimologia tra parentesi quadre
-    # 3. Prende la traduzione dopo i due punti ':'
+    # Schema per trovare Lemma [Etimologia]: Traduzione
     schema = re.compile(r"([^(]+)\s+\[.*?\]:\s+(.*)")
 
     linee = testo.strip().split('\n')
     
     for linea in linee:
-        # Pulizia: rimuoviamo i numeri tra parentesi come (20) all'inizio
+        # Rimuove numeri tra parentesi come (20)
         linea_pulita = re.sub(r"\(\d+\)", "", linea).strip()
         
         match = schema.search(linea_pulita)
         if match:
-            info_latina = match.group(1).strip() # Es: "ācer -acris -acre agg."
-            traduzione = match.group(2).strip() # Es: "acuto, acre, pungente"
+            info_latina = match.group(1).strip() 
+            traduzione = match.group(2).strip() 
             
-            # Dividiamo la parte latina per isolare il primo elemento
             parti_latine = info_latina.split()
-            fronte = parti_latine[0] # Il primo elemento (nominativo o prima persona)
-            retro = f"{info_latina} | Traduzione: {traduzione}"
-            
-            flashcards.append({"fronte": fronte, "retro": retro})
+            if parti_latine:
+                fronte = parti_latine[0]
+                retro = f"{info_latina} | Traduzione: {traduzione}"
+                flashcards.append({"fronte": fronte, "retro": retro})
 
-    # Mescoliamo l'ordine in modo casuale
     random.shuffle(flashcards)
     return flashcards
 
-# Esecuzione del programma
-lista_flashcards = crea_flashcards(testo_lessico)
+# --- NUOVA PARTE: LETTURA DAL FILE ---
 
-print(f"--- GENERATORE DI FLASHCARDS LATINE ---")
-print(f"Trovate {len(lista_flashcards)} parole.\n")
+nome_file = "lessico.txt"
 
-for i, card in enumerate(lista_flashcards, 1):
-    print(f"FLASHCARD {i}")
-    print(f"FRONTE: {card['fronte']}")
-    print(f"RETRO: {card['retro']}")
-    print("-" * 30)
+try:
+    # Apriamo il file in modalità lettura ('r') con codifica 'utf-8'
+    with open(nome_file, "r", encoding="utf-8") as file:
+        contenuto_file = file.read()
+        
+    # Usiamo la funzione con il testo letto dal file
+    lista_flashcards = crea_flashcards(contenuto_file)
+
+    print(f"--- GENERATORE DI FLASHCARDS DA FILE ---")
+    print(f"Caricate {len(lista_flashcards)} parole da '{nome_file}'.\n")
+
+    # Mostriamo le prime 5 per prova
+    for i, card in enumerate(lista_flashcards[:5], 1):
+        print(f"FLASHCARD {i}")
+        print(f"FRONTE: {card['fronte']}")
+        print(f"RETRO: {card['retro']}")
+        print("-" * 30)
+
+except FileNotFoundError:
+    print(f"Errore: Il file '{nome_file}' non è stato trovato. Assicurati che sia nella stessa cartella dello script.")
+except Exception as e:
+    print(f"Si è verificato un errore imprevisto: {e}")
