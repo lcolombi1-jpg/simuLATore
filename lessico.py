@@ -1,5 +1,6 @@
 import streamlit as st
 import random
+import re
 
 # --- DATABASE ---
 dati_lessico = """
@@ -182,6 +183,15 @@ utilis, -e (II classe) = utile
 pauper, -eris (II classe) = povero
 """
 
+import streamlit as st
+import random
+import re
+
+# --- DATABASE ---
+dati_lessico = """
+[... mantieni qui il database del messaggio precedente ...]
+"""
+
 def parse_lessico(testo):
     cards = []
     linee = testo.strip().split('\n')
@@ -193,16 +203,11 @@ def parse_lessico(testo):
             categoria_attuale = riga
             continue
         
-        # Gestione separatore "=" o spazio (per righe tipo 'eo, is... andare')
         if "=" in riga:
             parti = riga.split("=", 1)
             latino = parti[0].strip()
             italiano = parti[1].strip()
         else:
-            # Se manca '=', cerchiamo di separare il paradigma dalla traduzione italiana
-            # (Assumiamo che l'italiano inizi dopo la chiusura delle parentesi o l'ultimo termine latino)
-            import re
-            # Questa regex separa il latino dall'italiano basandosi su parole comuni italiane o posizione
             parti = re.split(r'\s+(?=[a-zàèéìòù\s]+$)', riga)
             if len(parti) > 1:
                 latino = parti[0].strip()
@@ -212,7 +217,6 @@ def parse_lessico(testo):
                 italiano = "Traduzione non inserita"
 
         fronte = latino.replace(",", " ").split()[0]
-        
         cards.append({
             "fronte": fronte.upper(),
             "paradigma": latino,
@@ -224,33 +228,36 @@ def parse_lessico(testo):
 # --- INTERFACCIA ---
 st.set_page_config(page_title="Latino Flashcards", layout="centered")
 
-# CSS personalizzato per la card "cliccabile"
+# CSS per rendere il lemma enorme e la card pulita
 st.markdown("""
     <style>
-    .flashcard {
-        background-color: #f8f9fa;
-        border: 2px solid #dee2e6;
-        border-radius: 15px;
-        padding: 40px;
+    /* Rimuove i margini superflui dei bottoni di Streamlit per farli sembrare card */
+    div.stButton > button {
+        height: 350px;
+        background-color: #ffffff;
+        border: 2px solid #e0e0e0;
+        border-radius: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+    }
+    div.stButton > button:hover {
+        border-color: #ff4b4b;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        background-color: #fffafa;
+    }
+    /* Stile per il testo del paradigma e traduzione */
+    .retro-container {
         text-align: center;
-        cursor: pointer;
-        transition: transform 0.3s, background-color 0.3s;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-        min-height: 250px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        margin-bottom: 20px;
     }
-    .flashcard:hover {
-        background-color: #e9ecef;
-        transform: scale(1.02);
+    .retro-paradigma {
+        font-size: 24px;
+        color: #555;
+        margin-bottom: 10px;
     }
-    .cat-label {
-        color: #6c757d;
-        font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+    .retro-traduzione {
+        font-size: 32px;
+        font-weight: bold;
+        color: #ff4b4b;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -275,47 +282,35 @@ def mischia():
     st.session_state.indice = 0
     st.session_state.mostra_retro = False
 
-# Layout
-st.title("🏛️ Trainer Lessico Latino")
-st.caption(f"Ripasso di verbi, sostantivi e aggettivi • {len(st.session_state.mazzo)} termini")
+# --- LAYOUT ---
+st.title("🏛️ Trainer Lessico")
 
 if st.session_state.indice < len(st.session_state.mazzo):
     item = st.session_state.mazzo[st.session_state.indice]
     
-    # Progress bar
-    progress = (st.session_state.indice + 1) / len(st.session_state.mazzo)
-    st.progress(progress)
-    st.write(f"Card {st.session_state.indice + 1} di {len(st.session_state.mazzo)}")
+    # Info Categoria e Progresso
+    col_a, col_b = st.columns([1, 1])
+    with col_a:
+        st.caption(f"Categoria: **{item['cat']}**")
+    with col_b:
+        st.markdown(f"<p style='text-align:right; color:gray;'>{st.session_state.indice + 1} / {len(st.session_state.mazzo)}</p>", unsafe_allow_html=True)
 
-    # LOGICA DELLA CARD CLICCABILE
-    # Usiamo un bottone invisibile o clicchiamo direttamente sul container?
-    # In Streamlit lo standard migliore per il "clic su elemento" è st.button 
-    # ma lo stilizziamo per sembrare una card.
-    
+    # AREA CARD
     if not st.session_state.mostra_retro:
-        # FRONTE
-        if st.button(f"LATINO\n\n{item['fronte']}\n\n(Clicca per girare)", key="front_btn", use_container_width=True, on_click=gira_card):
-            pass 
+        # FRONTE: Solo il lemma in grassetto gigante
+        st.button(item['fronte'], key="front_btn", use_container_width=True, on_click=gira_card)
+        st.markdown(f"<style>#root div[data-testid='stButton'] > button p {{ font-size: 70px !important; font-weight: 800; }}</style>", unsafe_allow_html=True)
     else:
-        # RETRO
-        retro_text = f"""
-        PARADIGMA / FORMA:
-        {item['paradigma']}
-        
-        TRADUZIONE:
-        {item['traduzione']}
-        
-        (Clicca per nascondere)
-        """
-        if st.button(retro_text, key="back_btn", use_container_width=True, on_click=gira_card):
-            pass
+        # RETRO: Paradigma e Traduzione
+        contenuto_retro = f"{item['paradigma']}\n\n{item['traduzione'].upper()}"
+        st.button(contenuto_retro, key="back_btn", use_container_width=True, on_click=gira_card)
+        st.markdown(f"<style>#root div[data-testid='stButton'] > button p {{ font-size: 28px !important; }}</style>", unsafe_allow_html=True)
 
-    # Controlli navigazione
-    col1, col2 = st.columns(2)
-    with col1:
+    st.write("") # Spaziatore
+
+    # Navigazione
+    c1, c2, c3 = st.columns([1, 2, 1])
+    with c2:
         st.button("PROSSIMA ➡️", on_click=prossima_card, use_container_width=True)
-    with col2:
-        st.button("🔀 MISCHIA", on_click=mischia, use_container_width=True)
-
-    # Footer con categoria
-    st.markdown(f"<p class='cat-label' style='text-align:center'>Categoria attuale: {item['cat']}</p>", unsafe_allow_html=True)
+    with c3:
+        st.button("🔀", on_click=mischia, use_container_width=True, help="Mischia il mazzo")
