@@ -185,72 +185,137 @@ pauper, -eris (II classe) = povero
 def parse_lessico(testo):
     cards = []
     linee = testo.strip().split('\n')
+    categoria_attuale = ""
     for riga in linee:
         riga = riga.strip()
-        if not riga or riga in ["VERBI", "SOSTANTIVI", "PRONOMI", "AGGETTIVI"]:
+        if not riga: continue
+        if riga in ["VERBI", "SOSTANTIVI", "PRONOMI", "AGGETTIVI"]:
+            categoria_attuale = riga
             continue
         
-        # Semplificazione: dividiamo sempre dove c'è "="
+        # Gestione separatore "=" o spazio (per righe tipo 'eo, is... andare')
         if "=" in riga:
             parti = riga.split("=", 1)
             latino = parti[0].strip()
             italiano = parti[1].strip()
         else:
-            # Se non c'è "=", prendiamo tutto come latino e lasciamo vuoto l'italiano
-            latino = riga
-            italiano = "Traduzione non trovata"
+            # Se manca '=', cerchiamo di separare il paradigma dalla traduzione italiana
+            # (Assumiamo che l'italiano inizi dopo la chiusura delle parentesi o l'ultimo termine latino)
+            import re
+            # Questa regex separa il latino dall'italiano basandosi su parole comuni italiane o posizione
+            parti = re.split(r'\s+(?=[a-zàèéìòù\s]+$)', riga)
+            if len(parti) > 1:
+                latino = parti[0].strip()
+                italiano = parti[1].strip()
+            else:
+                latino = riga
+                italiano = "Traduzione non inserita"
 
-        # Estrazione del fronte (prima parola prima della virgola o spazio)
         fronte = latino.replace(",", " ").split()[0]
         
         cards.append({
             "fronte": fronte.upper(),
             "paradigma": latino,
-            "traduzione": italiano
+            "traduzione": italiano,
+            "cat": categoria_attuale
         })
     return cards
 
 # --- INTERFACCIA ---
 st.set_page_config(page_title="Latino Flashcards", layout="centered")
 
-# Inizializzazione
+# CSS personalizzato per la card "cliccabile"
+st.markdown("""
+    <style>
+    .flashcard {
+        background-color: #f8f9fa;
+        border: 2px solid #dee2e6;
+        border-radius: 15px;
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: transform 0.3s, background-color 0.3s;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        min-height: 250px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    .flashcard:hover {
+        background-color: #e9ecef;
+        transform: scale(1.02);
+    }
+    .cat-label {
+        color: #6c757d;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Inizializzazione Session State
 if 'mazzo' not in st.session_state:
     st.session_state.mazzo = parse_lessico(dati_lessico)
     random.shuffle(st.session_state.mazzo)
     st.session_state.indice = 0
     st.session_state.mostra_retro = False
 
-# Funzioni per i bottoni (più sicure di rerun diretto)
+# Funzioni
 def gira_card():
-    st.session_state.mostra_retro = True
+    st.session_state.mostra_retro = not st.session_state.mostra_retro
 
 def prossima_card():
     st.session_state.indice = (st.session_state.indice + 1) % len(st.session_state.mazzo)
     st.session_state.mostra_retro = False
 
-# Visualizzazione
-st.title("🏛️ Trainer Lessico")
+def mischia():
+    random.shuffle(st.session_state.mazzo)
+    st.session_state.indice = 0
+    st.session_state.mostra_retro = False
+
+# Layout
+st.title("🏛️ Trainer Lessico Latino")
+st.caption(f"Ripasso di verbi, sostantivi e aggettivi • {len(st.session_state.mazzo)} termini")
 
 if st.session_state.indice < len(st.session_state.mazzo):
     item = st.session_state.mazzo[st.session_state.indice]
     
-    st.write(f"Parola {st.session_state.indice + 1} di {len(st.session_state.mazzo)}")
-    
-    # BOX CARD
-    if not st.session_state.mostra_retro:
-        st.info("### FRONTE")
-        st.markdown(f"<h1 style='text-align:center; font-size:60px;'>{item['fronte']}</h1>", unsafe_allow_html=True)
-        st.button("🔍 VERIFICA", on_click=gira_card, use_container_width=True)
-    else:
-        st.success("### RETRO")
-        st.write("**Paradigma / Genitivo:**")
-        st.subheader(item['paradigma'])
-        st.write("**Traduzione:**")
-        st.subheader(item['traduzione'])
-        st.button("PROSSIMA ➡️", on_click=prossima_card, use_container_width=True)
+    # Progress bar
+    progress = (st.session_state.indice + 1) / len(st.session_state.mazzo)
+    st.progress(progress)
+    st.write(f"Card {st.session_state.indice + 1} di {len(st.session_state.mazzo)}")
 
-    if st.button("🔀 MISCHIA"):
-        random.shuffle(st.session_state.mazzo)
-        st.session_state.indice = 0
-        st.session_state.mostra_retro = False
-        st.rerun()
+    # LOGICA DELLA CARD CLICCABILE
+    # Usiamo un bottone invisibile o clicchiamo direttamente sul container?
+    # In Streamlit lo standard migliore per il "clic su elemento" è st.button 
+    # ma lo stilizziamo per sembrare una card.
+    
+    if not st.session_state.mostra_retro:
+        # FRONTE
+        if st.button(f"LATINO\n\n{item['fronte']}\n\n(Clicca per girare)", key="front_btn", use_container_width=True, on_click=gira_card):
+            pass 
+    else:
+        # RETRO
+        retro_text = f"""
+        PARADIGMA / FORMA:
+        {item['paradigma']}
+        
+        TRADUZIONE:
+        {item['traduzione']}
+        
+        (Clicca per nascondere)
+        """
+        if st.button(retro_text, key="back_btn", use_container_width=True, on_click=gira_card):
+            pass
+
+    # Controlli navigazione
+    col1, col2 = st.columns(2)
+    with col1:
+        st.button("PROSSIMA ➡️", on_click=prossima_card, use_container_width=True)
+    with col2:
+        st.button("🔀 MISCHIA", on_click=mischia, use_container_width=True)
+
+    # Footer con categoria
+    st.markdown(f"<p class='cat-label' style='text-align:center'>Categoria attuale: {item['cat']}</p>", unsafe_allow_html=True)
