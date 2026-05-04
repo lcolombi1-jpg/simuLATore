@@ -1,289 +1,255 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Programmatore Flash Cards Latino</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f0f2f5; padding: 20px; }
-        .counter { margin-bottom: 15px; font-size: 1.1rem; color: #555; font-weight: bold; }
-        
-        /* Contenitore card */
-        .card { width: 380px; height: 280px; perspective: 1000px; cursor: pointer; }
-        .card-inner {
-            position: relative; width: 100%; height: 100%; text-align: center;
-            transition: transform 0.6s; transform-style: preserve-3d;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2); border-radius: 15px;
-        }
-        .card.flipped .card-inner { transform: rotateY(180deg); }
-        
-        .front, .back {
-            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
-            display: flex; align-items: center; justify-content: center;
-            padding: 30px; box-sizing: border-box; border-radius: 15px;
-        }
-        .front { background-color: #ffffff; font-size: 2.5rem; color: #1a73e8; font-weight: bold; }
-        .back { background-color: #e8f0fe; transform: rotateY(180deg); flex-direction: column; font-size: 1.2rem; }
-        
-        .controls { margin-top: 40px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
-        button {
-            padding: 15px 30px; font-size: 1rem; cursor: pointer; border: none;
-            border-radius: 50px; background-color: #1a73e8; color: white; transition: 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        button:hover { background-color: #1557b0; transform: translateY(-2px); }
-        .btn-shuffle { background-color: #34a853; }
-        .btn-prev { background-color: #70757a; }
-    </style>
-</head>
-<body>
+import streamlit as st
+import random
 
-    <h1>Lessico Latino</h1>
-    <div class="counter" id="counter">Caricamento...</div>
+# --- DATABASE LESSICALE ---
+# Ho inserito qui tutto il testo che mi hai fornito
+dati_lessico = """
+VERBI
+amo, -as, -avi, -atum, -are (I con.) = amare
+cognosco, -is, cognovi, cognitum, -ere (III con.) conoscere
+valeo, -es, -ui, -ere (II con.) = essere forte; essere in buona salute
+do, -as, dedi, datum, -are (I con.) = dare
+pugno, -as, -avi, -atum, -are (I con.) = combattere
+eo, is, ivi, itum, ire andare
+facio, -is, feci, factum, -ere = fare
+possum, potes, potui, posse (composto di sum) potere
+quiesco, -is, quievi, quietum, -ere (III con.) riposare
+duco, -is, duxi, dictum, -ere (III con.) = condurre
+habeo, -es, -ui, -itum, -ere (II con.) = avere
+sum, es, fui, esse = essere
+video, -es, vidi, visum, -ere (II con.) vedere
+oro, -as, -avi, -atum, -are (I con.) = pregare
+vigilo, -as, -avi, -atum, -are (I con.) = vegliare
+venio, -is, veni, ventum, -ire (IV con.) = venire
+exerceo, -es, -ui, -itum, -ere (II con.) esercitare
+gero, -is, gessi, gestum, -ere (III con.) portare
+miror, -aris, -atus sum, -ari (I con.; dep.) meravigliarsi
+rogo, -as, -avi, -atum, -are (I con.) = chiedere
+peto, -is, ivi, -itum, -ere (III con.) = chiedere
+suadeo, -es, suasi, suasum, -ere (II con.) = persuadere
+constituo, -is, -stitui, -stitutum, -ere (III con.) = decidere
+fio, fis, factus sum, fieri essere fatto, accadere, divenire
+accido, -is, accidi, -ere (III con.) = accadere
+sequor, -eris, secutus sum, sequi (III con.; dep.) = seguire
+quaero, -is, quaesivi, quaesitum, -ere (III con.) = chiedere
+laudo, -as, -avi, -atum, -are (I con.) = lodare
+morior, -eris, mortuus sum, mori (con. mista; dep.) = morire
+vinco, -is, vici, victum, -ere (III con.) = vincere
+vivo, -is, vixi, victum, -ere (III con.) = vivere
+vincio, -is, vinxi, vinctum, -ire (IV con.) legare
+cogito, -as, -avi, -atum, -are (I con.) = pensare
+respondeo, -es, respondi, responsum, -ere (II con.) = rispondere
+audio, -is, -ivi, -itum, -ire (IV con.) = udire
+scio, -is, scivi, scitum, -ire (IV con.) = sapere
+credo, -is, credidi, creditum, -ere (III con.) = credere
+timeo, -es, -ui, -ere (II con.) = temere
+erro, -as, -avi, -atum, -are (I con.) = vagare; sbagliare
+nego, -as, -avi, -atum, -are (I con.) = negare
+invenio, -is, -veni, -ventum, -ire (IV con.) trovare
+studeo, -es, -ui, -ere (II con.) = desiderare
+disco, -is, didici, -ere (III con.) = imparare
+paro, -as, -avi, -atum, -are (I con.) preparare
+dico, -is, dixi, dictum, -ere (III con.) = dire
+scribo, -is, scripsi, scriptum, -ere (III con.) = scrivere
+soleo, -es, solitus sum, -ere (II con.; semidep.) = essere solito
+exsisto, -is, -stiti, -ere (III con.) = esistere
+nascor, -eris, natus sum, nasci (III con.; dep.) = nascere
+censeo, -es, censui, censum, -ere (II con.) giudicare
+existimo, -as, -avi, -atum, -are (I con.) stimare
+mitto, -is, misi, missum, -ere (III con.) mandare
+volo, vis, volui, volle volere
+nolo, non vis, nolui, nolle = non volere
+malo, mavis, malui, malle preferire
+desum, -es, -fui, -esse (composto di sum) = mancare
+confiteor, -eris, -fessus sum, -eri (II con.) confessare
+oportet, oportuit, -ere (II con.; impersonale) = bisogna
+fero, fers, tuli, latum, ferre portare
+dono, -as, -avi, -atum, -are (I con.) = donare
+pono, -is, posui, positum, -ere (III con.) porre
+sumo, -is, sumpsi, sumptum, -ere (III con.) prendere
+lego, -is, legi, lectum, -ere (III con.) = leggere
+rumpo, -is, rupi, ruptum, -ere (III con.) rompere
+obsideo, -er, -sedi, -sessum, -ere (II con.) = assediare
+laboro, -as, -avi, -atum, -are (I con.) lavorare, far fatica
+teneo, -es, tenui, tentum, -ere (II con.) = tenere
+queror, -eris, questus sum, queri (III con.; dep.) = lamentarsi
+loquor, -eris, locutus sum, loqui (III con.; dep.) = parlare
+dormio, -is, -ivi, -itum, -ire (IV con.) dormire
+amitto, -is, -misi, -missum, -ere (III con.) perdere; lasciar andare
+moveo, -es, movi, motum, -ere (II con.) = muovere
+hortor, -aris, -atus sum, -ari (I con.; dep.) = esortare
+capio, -is, cepi, captum, -ere = prendere
+pello, -is, pepuli, pulsum, -ere (III con.) spingere; cacciare
+proficiscor, -eris, -fectus sum, -ficisci (III con.; dep.) = partire
+imitor, -aris, -atus sum, -ari (I con.; dep.) imitare
+taceo, -es, -ui, -itum, -ere (II con.) = tacere
+consequor, -eris, -secutus sum, -sequi (III con.; dep.) = ottenere
+reddo, -is, -didi, -ditum, -ere (III con.) restituire
+cerno, -is, crevi, cretum, -ere (III con.) vedere
+defendo, -is, -fendi, -fensum, -ere (III con.) difendere
+ago, -is, egi, actum, -ere (III con.) = condurre
+puto, -as, -avi, -atum, -are (I con.) = pensare
+metuo, -is, -ui, -utum, -ere (III con.) = temere
+
+SOSTANTIVI
+oppidum, -i (n.; II decl.) = città
+custodia, -ae (f.; I decl.) sorveglianza; prigione
+bellum, -i (n; II decl.) = guerra
+pugna, -ae (f.; I decl.) = battaglia
+iniuria, -ae (f.; I decl.) offesa
+dux, ducis (m.; III decl.) comandante
+hostis, hostis (m.; III decl.) = nemico
+exercitus, -us (m.; IV decl.) = esercito
+victor, -is (m.; III decl.) vincitore
+corpus, -oris (n.; III decl.) = corpo
+manus, -us (f.; IV decl.) mano
+rostrum, -i (n.; II decl.) rostro
+homo, hominis (m; III decl.) = uomo
+mos, moris (m.; III decl.) costume, usanza
+rex, regis (m.; III decl.) = re
+exemplum, -i (n.; II decl.) esempio
+multitudo, -inis (f.; III decl.) = folla
+res, rei (f.; V decl.) = cosa
+patria, -ae (f.; I decl.) = patria
+nihil (n.; indeclinabile) niente
+urbs, -is (f.; III decl.) = città
+solitudo, -inis (f.; III decl.) = solitudine
+victoria, -ae (I decl.) vittoria
+liber, libri (m.; II decl.) = libro
+agricultura, -ae (f.; I decl.) agricoltura
+ius, iuris (n.; III decl.) diritto, giustizia
+utilitas, -atis (f.; III decl.) utilità
+mens, mentis (f.; III decl.) = mente
+gloria, -ae (f.; I decl.) = gloria
+res publica (sost. f. V decl. + agg.) = stato
+Caesar, -is (m.; III decl.) Cesare
+equitatus, -us (m.; IV decl.) = cavalleria
+iter, itineris (n.; III decl.) viaggio
+impetus, -us (m.; IV decl.) impeto
+vox, vocis (f.; III decl.) = voce
+ferrum, -i (n.; II decl.) ferro; spada
+ignis, -is (m.; III decl.) = fuoco
+genus, -eris (n.; III decl.) = genere
+officium, -i (n.; II decl.) = dovere
+epistula, -ae (f.; I decl.) epistola
+nox, noctis (f.; III decl.) = notte
+imperator, -oris (m.; III decl.) = comandante
+miles, -itis (m.; III decl.) soldato
+legio, -onis (f.; III decl.) = legione
+proelium, -i (n.; II decl.) = battaglia
+regnum, -i (n.; II decl.) regno
+matrimonium, -i (n.; II decl.) = matrimonio
+legatus, -i (II decl.) = ambasciatore
+frater, fratris (m.; III decl.) = fratello
+consul, -is (m.; III decl.) console
+Cicero, -onis (m.; III decl.) = Cicerone
+Hannibal, is (m.; III decl.) Annibale
+opera, -ae (f.; I decl.) = opera
+vir, viri (m.; II decl.) = uomo
+verbum, -i (n.; II decl.) = parola
+ars, artis (f.; III decl.) arte, tecnica
+tempus, -oris (n.; III decl.) tempo
+ager, agri (m.; II decl.) = campo
+oratio, -onis (f.; III decl.) discorso
+virtus, -utis (f.; III decl.) = valore
+
+PRONOMI
+ego, mei = io
+tu, tui = tu
+is, ea, id = egli/lui, ella/lei, esso
+hic, haec, hoc = questo
+ille, illa, illud = quello
+sui, sibi = sè
+qui, quae, quod = che/quale
+quis, quid chi? che cosa?
+nemo, neminis nessuno
+
+AGGETTIVI
+facilis, -e (II classe) = facile
+omnis, -e (II classe) ogni, tutto
+aegrotus, -a, -um (I classe) malato
+felix, -icis (II classe) felice, fortunato
+bonus, -a, -um (I classe) = buono
+dulcis, -e (II classe) = dolce
+doctus, -a, -um (I classe) dotto
+nullus, -a, -um (agg. pronominale) = nessuno
+verus, -a, -um (I classe) = vero
+alius, -a, -ud (agg. pronominale) = altro
+alter, -a, -um (agg. pronominale) altro (fra due)
+Romanus, -a, -um (I classe) romano
+multus, -a, -um (I classe) = molto
+odiosus, -a, -um (I classe) = odioso
+utilis, -e (II classe) = utile
+pauper, -eris (II classe) = povero
+"""
+
+def parse_lessico(testo):
+    cards = []
+    linee = testo.strip().split('\n')
+    for riga in linee:
+        riga = riga.strip()
+        # Se la riga contiene un segno di uguaglianza o è una riga di dati valida
+        if "=" in riga or "," in riga:
+            sep = "=" if "=" in riga else ","
+            parti = riga.split(sep, 1)
+            
+            latino = parti[0].strip()
+            # La traduzione è la parte dopo l'ultimo separatore trovato
+            traduzione = parti[1].strip() if len(parti) > 1 else "Vedi paradigma"
+            
+            # Il fronte è solo la prima parola del paradigma
+            fronte = latino.split(",")[0].split()[0]
+            
+            cards.append({
+                "fronte": fronte.upper(),
+                "retro": f"**Paradigma/Dati:** {latino}\n\n**Traduzione:** {traduzione}"
+            })
+    return cards
+
+# --- INTERFACCIA STREAMLIT ---
+st.set_page_config(page_title="Flashcards Latino", page_icon="🏛️")
+st.title("🏛️ Trainer Lessico Latino")
+
+if 'mazzo' not in st.session_state:
+    st.session_state.mazzo = parse_lessico(dati_lessico)
+    random.shuffle(st.session_state.mazzo)
+    st.session_state.indice = 0
+    st.session_state.mostra_retro = False
+
+if st.session_state.indice < len(st.session_state.mazzo):
+    card = st.session_state.mazzo[st.session_state.indice]
     
-    <div class="card" id="flashcard" onclick="this.classList.toggle('flipped')">
-        <div class="card-inner">
-            <div class="front" id="card-front">...</div>
-            <div class="back" id="card-back">...</div>
-        </div>
+    # Progress bar
+    st.write(f"Parola {st.session_state.indice + 1} di {len(st.session_state.mazzo)}")
+    st.progress((st.session_state.indice + 1) / len(st.session_state.mazzo))
+
+    # Box della parola
+    st.markdown(f"""
+    <div style="height: 200px; display: flex; align-items: center; justify-content: center; 
+    background-color: #f0f2f6; border-radius: 15px; border: 3px solid #ff4b4b; margin: 20px 0px;">
+        <h1 style="color: #31333F; font-family: 'serif'; font-size: 45px;">{card['fronte']}</h1>
     </div>
+    """, unsafe_allow_html=True)
 
-    <div class="controls">
-        <button class="btn-prev" onclick="prevCard()">Indietro</button>
-        <button onclick="nextCard()">Prossima</button>
-        <button class="btn-shuffle" onclick="shuffleAndReset()">Mescola e Ricomincia</button>
-    </div>
+    if st.button("🔄 MOSTRA TRADUZIONE", use_container_width=True):
+        st.session_state.mostra_retro = True
 
-    <script>
-        // Database completo dal tuo documento
-        let vocaboli = [
-            // VERBI
-            { p: "amo, -as, -avi, -atum, -are (I con.)", t: "amare" },
-            { p: "cognosco, -is, cognovi, cognitum, -ere (III con.)", t: "conoscere" },
-            { p: "valeo, -es, -ui, -ere (II con.)", t: "essere forte; essere in buona salute" },
-            { p: "do, -as, dedi, datum, -are (I con.)", t: "dare" },
-            { p: "pugno, -as, -avi, -atum, -are (I con.)", t: "combattere" },
-            { p: "eo, is, ivi, itum, ire", t: "andare" },
-            { p: "facio, -is, feci, factum, -ere", t: "fare" },
-            { p: "possum, potes, potui, posse", t: "potere" },
-            { p: "quiesco, -is, quievi, quietum, -ere (III con.)", t: "riposare" },
-            { p: "duco, -is, duxi, ductum, -ere (III con.)", t: "condurre" },
-            { p: "habeo, -es, -ui, -itum, -ere (II con.)", t: "avere" },
-            { p: "sum, es, fui, esse", t: "essere" },
-            { p: "video, -es, vidi, visum, -ere (II con.)", t: "vedere" },
-            { p: "oro, -as, -avi, -atum, -are (I con.)", t: "pregare" },
-            { p: "vigilo, -as, -avi, -atum, -are (I con.)", t: "vegliare" },
-            { p: "venio, -is, veni, ventum, -ire (IV con.)", t: "venire" },
-            { p: "exerceo, -es, -ui, -itum, -ere (II con.)", t: "esercitare" },
-            { p: "gero, -is, gessi, gestum, -ere (III con.)", t: "portare" },
-            { p: "miror, -aris, -atus sum, -ari (I con.; dep.)", t: "meravigliarsi" },
-            { p: "rogo, -as, -avi, -atum, -are (I con.)", t: "chiedere" },
-            { p: "peto, -is, ivi, -itum, -ere (III con.)", t: "chiedere" },
-            { p: "suadeo, -es, suasi, suasum, -ere (II con.)", t: "persuadere" },
-            { p: "constituo, -is, -stitui, -stitutum, -ere (III con.)", t: "decidere" },
-            { p: "fio, fis, factus sum, fieri", t: "essere fatto, accadere, divenire" },
-            { p: "accido, -is, accidi, -ere (III con.)", t: "accadere" },
-            { p: "sequor, -eris, secutus sum, sequi (III con.; dep.)", t: "seguire" },
-            { p: "quaero, -is, quaesivi, quaesitum, -ere (III con.)", t: "chiedere" },
-            { p: "laudo, -as, -avi, -atum, -are (I con.)", t: "lodare" },
-            { p: "morior, -eris, mortuus sum, mori (con. mista; dep.)", t: "morire" },
-            { p: "vinco, -is, vici, victum, -ere (III con.)", t: "vincere" },
-            { p: "vivo, -is, vixi, victum, -ere (III con.)", t: "vivere" },
-            { p: "vincio, -is, vinxi, vinctum, -ire (IV con.)", t: "legare" },
-            { p: "cogito, -as, -avi, -atum, -are (I con.)", t: "pensare" },
-            { p: "respondeo, -es, respondi, responsum, -ere (II con.)", t: "rispondere" },
-            { p: "audio, -is, -ivi, -itum, -ire (IV con.)", t: "udire" },
-            { p: "scio, -is, scivi, scitum, -ire (IV con.)", t: "sapere" },
-            { p: "credo, -is, credidi, creditum, -ere (III con.)", t: "credere" },
-            { p: "timeo, -es, -ui, -ere (II con.)", t: "temere" },
-            { p: "erro, -as, -avi, -atum, -are (I con.)", t: "vagare; sbagliare" },
-            { p: "nego, -as, -avi, -atum, -are (I con.)", t: "negare" },
-            { p: "invenio, -is, -veni, -ventum, -ire (IV con.)", t: "trovare" },
-            { p: "studeo, -es, -ui, -ere (II con.)", t: "desiderare" },
-            { p: "disco, -is, didici, -ere (III con.)", t: "imparare" },
-            { p: "paro, -as, -avi, -atum, -are (I con.)", t: "preparare" },
-            { p: "dico, -is, dixi, dictum, -ere (III con.)", t: "dire" },
-            { p: "scribo, -is, scripsi, scriptum, -ere (III con.)", t: "scrivere" },
-            { p: "soleo, -es, solitus sum, -ere (II con.; semidep.)", t: "essere solito" },
-            { p: "exsisto, -is, -stiti, -ere (III con.)", t: "esistere" },
-            { p: "censeo, -es, censui, censum, -ere (II con.)", t: "giudicare" },
-            { p: "existimo, -as, -avi, -atum, -are (I con.)", t: "stimare" },
-            { p: "mitto, -is, misi, missum, -ere (III con.)", t: "mandare" },
-            { p: "nascor, -eris, natus sum, nasci (III con.; dep.)", t: "nascere" },
-            { p: "volo, vis, volui, volle", t: "volere" },
-            { p: "nolo, non vis, nolui, nolle", t: "non volere" },
-            { p: "malo, mavis, malui, malle", t: "preferire" },
-            { p: "desum, -es, -fui, -esse", t: "mancare" },
-            { p: "confiteor, -eris, -fessus sum, -eri (II con.)", t: "confessare" },
-            { p: "oportet, oportuit, -ere (II con.; impersonale)", t: "bisogna" },
-            { p: "fero, fers, tuli, latum, ferre", t: "portare" },
-            { p: "dono, -as, -avi, -atum, -are (I con.)", t: "donare" },
-            { p: "pono, -is, posui, positum, -ere (III con.)", t: "porre" },
-            { p: "sumo, -is, sumpsi, sumptum, -ere (III con.)", t: "prendere" },
-            { p: "lego, -is, legi, lectum, -ere (III con.)", t: "leggere" },
-            { p: "rumpo, -is, rupi, ruptum, -ere (III con.)", t: "rompere" },
-            { p: "obsideo, -er, -sedi, -sessum, -ere (II con.)", t: "assediare" },
-            { p: "laboro, -as, -avi, -atum, -are (I con.)", t: "lavorare, far fatica" },
-            { p: "teneo, -es, tenui, tentum, -ere (II con.)", t: "tenere" },
-            { p: "queror, -eris, questus sum, queri (III con.; dep.)", t: "lamentarsi" },
-            { p: "loquor, -eris, locutus sum, loqui (III con.; dep.)", t: "parlare" },
-            { p: "dormio, -is, -ivi, -itum, -ire (IV con.)", t: "dormire" },
-            { p: "amitto, -is, -misi, -missum, -ere (III con.)", t: "perdere; lasciar andare" },
-            { p: "moveo, -es, movi, motum, -ere (II con.)", t: "muovere" },
-            { p: "hortor, -aris, -atus sum, -ari (I con.; dep.)", t: "esortare" },
-            { p: "capio, -is, cepi, captum, -ere", t: "prendere" },
-            { p: "pello, -is, pepuli, pulsum, -ere (III con.)", t: "spingere; cacciare" },
-            { p: "proficiscor, -eris, -fectus sum, -ficisci (III con.; dep.)", t: "partire" },
-            { p: "imitor, -aris, -atus sum, -ari (I con.; dep.)", t: "imitare" },
-            { p: "taceo, -es, -ui, -itum, -ere (II con.)", t: "tacere" },
-            { p: "consequor, -eris, -secutus sum, -sequi (III con.; dep.)", t: "ottenere" },
-            { p: "reddo, -is, -didi, -ditum, -ere (III con.)", t: "restituire" },
-            { p: "cerno, -is, crevi, cretum, -ere (III con.)", t: "vedere" },
-            { p: "defendo, -is, -fendi, -fensum, -ere (III con.)", t: "difendere" },
-            { p: "ago, -is, egi, actum, -ere (III con.)", t: "condurre" },
-            { p: "puto, -as, -avi, -atum, -are (I con.)", t: "pensare" },
-            { p: "metuo, -is, -ui, -utum, -ere (III con.)", t: "temere" },
-            
-            // SOSTANTIVI
-            { p: "oppidum, -i (n.; II decl.)", t: "città" },
-            { p: "custodia, -ae (f.; I decl.)", t: "sorveglianza; prigione" },
-            { p: "bellum, -i (n; II decl.)", t: "guerra" },
-            { p: "pugna, -ae (f.; I decl.)", t: "battaglia" },
-            { p: "iniuria, -ae (f.; I decl.)", t: "offesa" },
-            { p: "dux, ducis (m.; III decl.)", t: "comandante" },
-            { p: "hostis, hostis (m.; III decl.)", t: "nemico" },
-            { p: "exercitus, -us (m.; IV decl.)", t: "esercito" },
-            { p: "victor, -is (m.; III decl.)", t: "vincitore" },
-            { p: "corpus, -oris (n.; III decl.)", t: "corpo" },
-            { p: "manus, -us (f.; IV decl.)", t: "mano" },
-            { p: "rostrum, -i (n.; II decl.)", t: "rostro" },
-            { p: "homo, hominis (m; III decl.)", t: "uomo" },
-            { p: "mos, moris (m.; III decl.)", t: "costume, usanza" },
-            { p: "rex, regis (m.; III decl.)", t: "re" },
-            { p: "exemplum, -i (n.; II decl.)", t: "esempio" },
-            { p: "multitudo, -inis (f.; III decl.)", t: "folla" },
-            { p: "res, rei (f.; V decl.)", t: "cosa" },
-            { p: "patria, -ae (f.; I decl.)", t: "patria" },
-            { p: "nihil (n.; indeclinabile)", t: "niente" },
-            { p: "urbs, -is (f.; III decl.)", t: "città" },
-            { p: "solitudo, -inis (f.; III decl.)", t: "solitudine" },
-            { p: "victoria, -ae (I decl.)", t: "vittoria" },
-            { p: "liber, libri (m.; II decl.)", t: "libro" },
-            { p: "agricultura, -ae (f.; I decl.)", t: "agricoltura" },
-            { p: "ius, iuris (n.; III decl.)", t: "diritto, giustizia" },
-            { p: "utilitas, -atis (f.; III decl.)", t: "utilità" },
-            { p: "mens, mentis (f.; III decl.)", t: "mente" },
-            { p: "gloria, -ae (f.; I decl.)", t: "gloria" },
-            { p: "res publica", t: "stato" },
-            { p: "Caesar, -is (m.; III decl.)", t: "Cesare" },
-            { p: "equitatus, -us (m.; IV decl.)", t: "cavalleria" },
-            { p: "iter, itineris (n.; III decl.)", t: "viaggio" },
-            { p: "impetus, -us (m.; IV decl.)", t: "impeto" },
-            { p: "vox, vocis (f.; III decl.)", t: "voce" },
-            { p: "ferrum, -i (n.; II decl.)", t: "ferro; spada" },
-            { p: "ignis, -is (m.; III decl.)", t: "fuoco" },
-            { p: "genus, -eris (n.; III decl.)", t: "genere" },
-            { p: "officium, -i (n.; II decl.)", t: "dovere" },
-            { p: "epistula, -ae (f.; I decl.)", t: "epistola" },
-            { p: "nox, noctis (f.; III decl.)", t: "notte" },
-            { p: "imperator, -oris (m.; III decl.)", t: "comandante" },
-            { p: "miles, -itis (m.; III decl.)", t: "soldato" },
-            { p: "legio, -onis (f.; III decl.)", t: "legione" },
-            { p: "proelium, -i (n.; II decl.)", t: "battaglia" },
-            { p: "regnum, -i (n.; II decl.)", t: "regno" },
-            { p: "matrimonium, -i (n.; II decl.)", t: "matrimonio" },
-            { p: "legatus, -i (II decl.)", t: "ambasciatore" },
-            { p: "frater, fratris (m.; III decl.)", t: "fratello" },
-            { p: "consul, -is (m.; III decl.)", t: "console" },
-            { p: "Cicero, -onis (m.; III decl.)", t: "Cicerone" },
-            { p: "Hannibal, is (m.; III decl.)", t: "Annibale" },
-            { p: "opera, -ae (f.; I decl.)", t: "opera" },
-            { p: "vir, viri (m.; II decl.)", t: "uomo" },
-            { p: "verbum, -i (n.; II decl.)", t: "parola" },
-            { p: "ars, artis (f.; III decl.)", t: "arte, tecnica" },
-            { p: "tempus, -oris (n.; III decl.)", t: "tempo" },
-            { p: "ager, agri (m.; II decl.)", t: "campo" },
-            { p: "oratio, -onis (f.; III decl.)", t: "discorso" },
-            { p: "virtus, -utis (f.; III decl.)", t: "valore" },
+    if st.session_state.mostra_retro:
+        st.info(card['retro'])
+        if st.button("PROSSIMA PAROLA ➡️", use_container_width=True):
+            st.session_state.indice += 1
+            st.session_state.mostra_retro = False
+            st.rerun()
 
-            // PRONOMI
-            { p: "ego, mei", t: "io" },
-            { p: "tu, tui", t: "tu" },
-            { p: "is, ea, id", t: "egli/lui, ella/lei, esso" },
-            { p: "hic, haec, hoc", t: "questo" },
-            { p: "ille, illa, illud", t: "quello" },
-            { p: "sui, sibi", t: "sè" },
-            { p: "qui, quae, quod", t: "che / quale" },
-            { p: "quis, quid", t: "chi? che cosa?" },
-            { p: "nemo, neminis", t: "nessuno" },
-
-            // AGGETTIVI
-            { p: "facilis, -e (II classe)", t: "facile" },
-            { p: "omnis, -e (II classe)", t: "ogni, tutto" },
-            { p: "aegrotus, -a, -um (I classe)", t: "malato" },
-            { p: "felix, -icis (II classe)", t: "felice, fortunato" },
-            { p: "bonus, -a, -um (I classe)", t: "buono, migliore, ottimo" },
-            { p: "dulcis, -e (II classe)", t: "dolce" },
-            { p: "doctus, -a, -um (I classe)", t: "dotto" },
-            { p: "nullus, -a, -um", t: "nessuno" },
-            { p: "verus, -a, -um (I classe)", t: "vero" },
-            { p: "alius, -a, -ud", t: "altro (fra molti)" },
-            { p: "alter, -a, -um", t: "altro (fra due)" },
-            { p: "Romanus, -a, -um", t: "romano" },
-            { p: "multus, -a, -um (I classe)", t: "molto" },
-            { p: "odiosus, -a, -um (I classe)", t: "odioso" },
-            { p: "utilis, -e (II classe)", t: "utile" },
-            { p: "pauper, -eris (II classe)", t: "povero" }
-        ];
-
-        let indice = 0;
-
-        // Funzione per mescolare l'array
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        function aggiorna() {
-            const card = document.getElementById('flashcard');
-            card.classList.remove('flipped');
-            
-            const current = vocaboli[indice];
-            // Prendi solo la prima parola prima della virgola
-            const fronte = current.p.split(',')[0].trim();
-            
-            document.getElementById('card-front').innerText = fronte;
-            document.getElementById('card-back').innerHTML = `
-                <div style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">Paradigma:</div>
-                <strong>${current.p}</strong>
-                <hr style="width: 60%; margin: 15px auto;">
-                <div style="color: #1a73e8; font-style: italic;">${current.t}</div>
-            `;
-            
-            document.getElementById('counter').innerText = `Card ${indice + 1} di ${vocaboli.length}`;
-        }
-
-        function nextCard() {
-            indice = (indice + 1) % vocaboli.length;
-            aggiorna();
-        }
-
-        function prevCard() {
-            indice = (indice - 1 + vocaboli.length) % vocaboli.length;
-            aggiorna();
-        }
-
-        function shuffleAndReset() {
-            shuffle(vocaboli);
-            indice = 0;
-            aggiorna();
-        }
-
-        // Inizio: mescola subito all'apertura e mostra la prima
-        shuffle(vocaboli);
-        aggiorna();
-    </script>
-</body>
-</html>
+    if st.button("🔀 RIMESCOLA TUTTO"):
+        random.shuffle(st.session_state.mazzo)
+        st.session_state.indice = 0
+        st.session_state.mostra_retro = False
+        st.rerun()
+else:
+    st.balloons()
+    st.success("Ottimo lavoro! Hai completato tutto il lessico.")
+    if st.button("Ricomincia da capo"):
+        st.session_state.indice = 0
+        random.shuffle(st.session_state.mazzo)
+        st.rerun()
