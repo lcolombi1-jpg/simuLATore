@@ -1,34 +1,33 @@
 import streamlit as st
 import random
-import re
 
 # --- DATABASE ---
 dati_lessico = """
 VERBI
 amo, -as, -avi, -atum, -are (I con.) = amare
-cognosco, -is, cognovi, cognitum, -ere (III con.) conoscere
+cognosco, -is, cognovi, cognitum, -ere (III con.) = conoscere
 valeo, -es, -ui, -ere (II con.) = essere forte; essere in buona salute
 do, -as, dedi, datum, -are (I con.) = dare
 pugno, -as, -avi, -atum, -are (I con.) = combattere
-eo, is, ivi, itum, ire andare
+eo, is, ivi, itum, ire = andare
 facio, -is, feci, factum, -ere = fare
-possum, potes, potui, posse (composto di sum) potere
-quiesco, -is, quievi, quietum, -ere (III con.) riposare
+possum, potes, potui, posse (composto di sum) = potere
+quiesco, -is, quievi, quietum, -ere (III con.) = riposare
 duco, -is, duxi, dictum, -ere (III con.) = condurre
 habeo, -es, -ui, -itum, -ere (II con.) = avere
 sum, es, fui, esse = essere
-video, -es, vidi, visum, -ere (II con.) vedere
+video, -es, vidi, visum, -ere (II con.) = vedere
 oro, -as, -avi, -atum, -are (I con.) = pregare
 vigilo, -as, -avi, -atum, -are (I con.) = vegliare
 venio, -is, veni, ventum, -ire (IV con.) = venire
-exerceo, -es, -ui, -itum, -ere (II con.) esercitare
-gero, -is, gessi, gestum, -ere (III con.) portare
-miror, -aris, -atus sum, -ari (I con.; dep.) meravigliarsi
+exerceo, -es, -ui, -itum, -ere (II con.) = esercitare
+gero, -is, gessi, gestum, -ere (III con.) = portare
+miror, -aris, -atus sum, -ari (I con.; dep.) = meravigliarsi
 rogo, -as, -avi, -atum, -are (I con.) = chiedere
 peto, -is, ivi, -itum, -ere (III con.) = chiedere
 suadeo, -es, suasi, suasum, -ere (II con.) = persuadere
 constituo, -is, -stitui, -stitutum, -ere (III con.) = decidere
-fio, fis, factus sum, fieri essere fatto, accadere, divenire
+fio, fis, factus sum, fieri = essere fatto, accadere, divenire
 accido, -is, accidi, -ere (III con.) = accadere
 sequor, -eris, secutus sum, sequi (III con.; dep.) = seguire
 quaero, -is, quaesivi, quaesitum, -ere (III con.) = chiedere
@@ -36,7 +35,7 @@ laudo, -as, -avi, -atum, -are (I con.) = lodare
 morior, -eris, mortuus sum, mori (con. mista; dep.) = morire
 vinco, -is, vici, victum, -ere (III con.) = vincere
 vivo, -is, vixi, victum, -ere (III con.) = vivere
-vincio, -is, vinxi, vinctum, -ire (IV con.) legare
+vincio, -is, vinxi, vinctum, -ire (IV con.) = legare
 cogito, -as, -avi, -atum, -are (I con.) = pensare
 respondeo, -es, respondi, responsum, -ere (II con.) = rispondere
 audio, -is, -ivi, -itum, -ire (IV con.) = udire
@@ -45,112 +44,112 @@ credo, -is, credidi, creditum, -ere (III con.) = credere
 timeo, -es, -ui, -ere (II con.) = temere
 erro, -as, -avi, -atum, -are (I con.) = vagare; sbagliare
 nego, -as, -avi, -atum, -are (I con.) = negare
-invenio, -is, -veni, -ventum, -ire (IV con.) trovare
+invenio, -is, -veni, -ventum, -ire (IV con.) = trovare
 studeo, -es, -ui, -ere (II con.) = desiderare
 disco, -is, didici, -ere (III con.) = imparare
-paro, -as, -avi, -atum, -are (I con.) preparare
+paro, -as, -avi, -atum, -are (I con.) = preparare
 dico, -is, dixi, dictum, -ere (III con.) = dire
 scribo, -is, scripsi, scriptum, -ere (III con.) = scrivere
 soleo, -es, solitus sum, -ere (II con.; semidep.) = essere solito
 exsisto, -is, -stiti, -ere (III con.) = esistere
 nascor, -eris, natus sum, nasci (III con.; dep.) = nascere
-censeo, -es, censui, censum, -ere (II con.) giudicare
-existimo, -as, -avi, -atum, -are (I con.) stimare
-mitto, -is, misi, missum, -ere (III con.) mandare
-volo, vis, volui, volle volere
+censeo, -es, censui, censum, -ere (II con.) = giudicare
+existimo, -as, -avi, -atum, -are (I con.) = stimare
+mitto, -is, misi, missum, -ere (III con.) = mandare
+volo, vis, volui, volle = volere
 nolo, non vis, nolui, nolle = non volere
-malo, mavis, malui, malle preferire
+malo, mavis, malui, malle = preferire
 desum, -es, -fui, -esse (composto di sum) = mancare
-confiteor, -eris, -fessus sum, -eri (II con.) confessare
+confiteor, -eris, -fessus sum, -eri (II con.) = confessare
 oportet, oportuit, -ere (II con.; impersonale) = bisogna
-fero, fers, tuli, latum, ferre portare
+fero, fers, tuli, latum, ferre = portare
 dono, -as, -avi, -atum, -are (I con.) = donare
-pono, -is, posui, positum, -ere (III con.) porre
-sumo, -is, sumpsi, sumptum, -ere (III con.) prendere
+pono, -is, posui, positum, -ere (III con.) = porre
+sumo, -is, sumpsi, sumptum, -ere (III con.) = prendere
 lego, -is, legi, lectum, -ere (III con.) = leggere
-rumpo, -is, rupi, ruptum, -ere (III con.) rompere
+rumpo, -is, rupi, ruptum, -ere (III con.) = rompere
 obsideo, -er, -sedi, -sessum, -ere (II con.) = assediare
-laboro, -as, -avi, -atum, -are (I con.) lavorare, far fatica
+laboro, -as, -avi, -atum, -are (I con.) = lavorare, far fatica
 teneo, -es, tenui, tentum, -ere (II con.) = tenere
 queror, -eris, questus sum, queri (III con.; dep.) = lamentarsi
 loquor, -eris, locutus sum, loqui (III con.; dep.) = parlare
-dormio, -is, -ivi, -itum, -ire (IV con.) dormire
-amitto, -is, -misi, -missum, -ere (III con.) perdere; lasciar andare
+dormio, -is, -ivi, -itum, -ire (IV con.) = dormire
+amitto, -is, -misi, -missum, -ere (III con.) = perdere; lasciar andare
 moveo, -es, movi, motum, -ere (II con.) = muovere
 hortor, -aris, -atus sum, -ari (I con.; dep.) = esortare
 capio, -is, cepi, captum, -ere = prendere
-pello, -is, pepuli, pulsum, -ere (III con.) spingere; cacciare
+pello, -is, pepuli, pulsum, -ere (III con.) = spingere; cacciare
 proficiscor, -eris, -fectus sum, -ficisci (III con.; dep.) = partire
-imitor, -aris, -atus sum, -ari (I con.; dep.) imitare
+imitor, -aris, -atus sum, -ari (I con.; dep.) = imitare
 taceo, -es, -ui, -itum, -ere (II con.) = tacere
 consequor, -eris, -secutus sum, -sequi (III con.; dep.) = ottenere
-reddo, -is, -didi, -ditum, -ere (III con.) restituire
-cerno, -is, crevi, cretum, -ere (III con.) vedere
-defendo, -is, -fendi, -fensum, -ere (III con.) difendere
+reddo, -is, -didi, -ditum, -ere (III con.) = restituire
+cerno, -is, crevi, cretum, -ere (III con.) = vedere
+defendo, -is, -fendi, -fensum, -ere (III con.) = difendere
 ago, -is, egi, actum, -ere (III con.) = condurre
 puto, -as, -avi, -atum, -are (I con.) = pensare
 metuo, -is, -ui, -utum, -ere (III con.) = temere
 
 SOSTANTIVI
 oppidum, -i (n.; II decl.) = città
-custodia, -ae (f.; I decl.) sorveglianza; prigione
+custodia, -ae (f.; I decl.) = sorveglianza; prigione
 bellum, -i (n; II decl.) = guerra
 pugna, -ae (f.; I decl.) = battaglia
-iniuria, -ae (f.; I decl.) offesa
-dux, ducis (m.; III decl.) comandante
+iniuria, -ae (f.; I decl.) = offesa
+dux, ducis (m.; III decl.) = comandante
 hostis, hostis (m.; III decl.) = nemico
 exercitus, -us (m.; IV decl.) = esercito
-victor, -is (m.; III decl.) vincitore
+victor, -is (m.; III decl.) = vincitore
 corpus, -oris (n.; III decl.) = corpo
-manus, -us (f.; IV decl.) mano
-rostrum, -i (n.; II decl.) rostro
+manus, -us (f.; IV decl.) = mano
+rostrum, -i (n.; II decl.) = rostro
 homo, hominis (m; III decl.) = uomo
-mos, moris (m.; III decl.) costume, usanza
+mos, moris (m.; III decl.) = costume, usanza
 rex, regis (m.; III decl.) = re
-exemplum, -i (n.; II decl.) esempio
+exemplum, -i (n.; II decl.) = esempio
 multitudo, -inis (f.; III decl.) = folla
 res, rei (f.; V decl.) = cosa
 patria, -ae (f.; I decl.) = patria
-nihil (n.; indeclinabile) niente
+nihil (n.; indeclinabile) = niente
 urbs, -is (f.; III decl.) = città
 solitudo, -inis (f.; III decl.) = solitudine
-victoria, -ae (I decl.) vittoria
+victoria, -ae (I decl.) = vittoria
 liber, libri (m.; II decl.) = libro
-agricultura, -ae (f.; I decl.) agricoltura
-ius, iuris (n.; III decl.) diritto, giustizia
-utilitas, -atis (f.; III decl.) utilità
+agricultura, -ae (f.; I decl.) = agricoltura
+ius, iuris (n.; III decl.) = diritto, giustizia
+utilitas, -atis (f.; III decl.) = utilità
 mens, mentis (f.; III decl.) = mente
 gloria, -ae (f.; I decl.) = gloria
 res publica (sost. f. V decl. + agg.) = stato
-Caesar, -is (m.; III decl.) Cesare
+Caesar, -is (m.; III decl.) = Cesare
 equitatus, -us (m.; IV decl.) = cavalleria
-iter, itineris (n.; III decl.) viaggio
-impetus, -us (m.; IV decl.) impeto
+iter, itineris (n.; III decl.) = viaggio
+impetus, -us (m.; IV decl.) = impeto
 vox, vocis (f.; III decl.) = voce
-ferrum, -i (n.; II decl.) ferro; spada
+ferrum, -i (n.; II decl.) = ferro; spada
 ignis, -is (m.; III decl.) = fuoco
 genus, -eris (n.; III decl.) = genere
 officium, -i (n.; II decl.) = dovere
-epistula, -ae (f.; I decl.) epistola
+epistula, -ae (f.; I decl.) = epistola
 nox, noctis (f.; III decl.) = notte
 imperator, -oris (m.; III decl.) = comandante
-miles, -itis (m.; III decl.) soldato
+miles, -itis (m.; III decl.) = soldato
 legio, -onis (f.; III decl.) = legione
 proelium, -i (n.; II decl.) = battaglia
-regnum, -i (n.; II decl.) regno
+regnum, -i (n.; II decl.) = regno
 matrimonium, -i (n.; II decl.) = matrimonio
 legatus, -i (II decl.) = ambasciatore
 frater, fratris (m.; III decl.) = fratello
-consul, -is (m.; III decl.) console
+consul, -is (m.; III decl.) = console
 Cicero, -onis (m.; III decl.) = Cicerone
-Hannibal, is (m.; III decl.) Annibale
+Hannibal, is (m.; III decl.) = Annibale
 opera, -ae (f.; I decl.) = opera
 vir, viri (m.; II decl.) = uomo
 verbum, -i (n.; II decl.) = parola
-ars, artis (f.; III decl.) arte, tecnica
-tempus, -oris (n.; III decl.) tempo
+ars, artis (f.; III decl.) = arte, tecnica
+tempus, -oris (n.; III decl.) = tempo
 ager, agri (m.; II decl.) = campo
-oratio, -onis (f.; III decl.) discorso
+oratio, -onis (f.; III decl.) = discorso
 virtus, -utis (f.; III decl.) = valore
 
 PRONOMI
@@ -161,35 +160,26 @@ hic, haec, hoc = questo
 ille, illa, illud = quello
 sui, sibi = sè
 qui, quae, quod = che/quale
-quis, quid chi? che cosa?
-nemo, neminis nessuno
+quis, quid = chi? che cosa?
+nemo, neminis = nessuno
 
 AGGETTIVI
 facilis, -e (II classe) = facile
-omnis, -e (II classe) ogni, tutto
-aegrotus, -a, -um (I classe) malato
-felix, -icis (II classe) felice, fortunato
+omnis, -e (II classe) = ogni, tutto
+aegrotus, -a, -um (I classe) = malato
+felix, -icis (II classe) = felice, fortunato
 bonus, -a, -um (I classe) = buono
 dulcis, -e (II classe) = dolce
-doctus, -a, -um (I classe) dotto
+doctus, -a, -um (I classe) = dotto
 nullus, -a, -um (agg. pronominale) = nessuno
 verus, -a, -um (I classe) = vero
 alius, -a, -ud (agg. pronominale) = altro
-alter, -a, -um (agg. pronominale) altro (fra due)
-Romanus, -a, -um (I classe) romano
+alter, -a, -um (agg. pronominale) = altro (fra due)
+Romanus, -a, -um (I classe) = romano
 multus, -a, -um (I classe) = molto
 odiosus, -a, -um (I classe) = odioso
 utilis, -e (II classe) = utile
 pauper, -eris (II classe) = povero
-"""
-
-import streamlit as st
-import random
-import re
-
-# --- DATABASE ---
-dati_lessico = """
-[... mantieni qui il database del messaggio precedente ...]
 """
 
 def parse_lessico(testo):
@@ -199,24 +189,23 @@ def parse_lessico(testo):
     for riga in linee:
         riga = riga.strip()
         if not riga: continue
+        
         if riga in ["VERBI", "SOSTANTIVI", "PRONOMI", "AGGETTIVI"]:
             categoria_attuale = riga
             continue
-        
+            
+        # Divisione sicura: se l'uguale manca, gestiamo l'errore senza crash
         if "=" in riga:
-            parti = riga.split("=", 1)
-            latino = parti[0].strip()
-            italiano = parti[1].strip()
+            latino, italiano = riga.split("=", 1)
         else:
-            parti = re.split(r'\s+(?=[a-zàèéìòù\s]+$)', riga)
-            if len(parti) > 1:
-                latino = parti[0].strip()
-                italiano = parti[1].strip()
-            else:
-                latino = riga
-                italiano = "Traduzione non inserita"
+            latino, italiano = riga, "[Traduzione mancante]"
+            
+        latino = latino.strip()
+        italiano = italiano.strip()
 
+        # Estrae solo il primo termine (es. da "amo, -as..." estrae "AMO")
         fronte = latino.replace(",", " ").split()[0]
+        
         cards.append({
             "fronte": fronte.upper(),
             "paradigma": latino,
@@ -225,44 +214,36 @@ def parse_lessico(testo):
         })
     return cards
 
-# --- INTERFACCIA ---
-st.set_page_config(page_title="Latino Flashcards", layout="centered")
+# --- INTERFACCIA STREAMLIT ---
+st.set_page_config(page_title="Flashcards Latino", layout="centered")
 
-# CSS per rendere il lemma enorme e la card pulita
+# CSS mirato SOLO per il bottone principale (type="primary")
 st.markdown("""
     <style>
-    /* Rimuove i margini superflui dei bottoni di Streamlit per farli sembrare card */
-    div.stButton > button {
-        height: 350px;
-        background-color: #ffffff;
-        border: 2px solid #e0e0e0;
-        border-radius: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        transition: all 0.2s ease;
+    button[kind="primary"] {
+        height: 350px !important;
+        background-color: #ffffff !important;
+        border: 2px solid #e0e0e0 !important;
+        border-radius: 20px !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+        color: #1f1f1f !important;
+        transition: transform 0.2s, box-shadow 0.2s !important;
     }
-    div.stButton > button:hover {
-        border-color: #ff4b4b;
-        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        background-color: #fffafa;
+    button[kind="primary"]:hover {
+        border-color: #ff4b4b !important;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1) !important;
+        transform: scale(1.01);
     }
-    /* Stile per il testo del paradigma e traduzione */
-    .retro-container {
-        text-align: center;
-    }
-    .retro-paradigma {
-        font-size: 24px;
-        color: #555;
-        margin-bottom: 10px;
-    }
-    .retro-traduzione {
-        font-size: 32px;
-        font-weight: bold;
-        color: #ff4b4b;
+    button[kind="primary"] p {
+        font-size: var(--card-font-size, 60px) !important;
+        font-weight: 800 !important;
+        white-space: pre-wrap !important;
+        line-height: 1.4 !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Inizializzazione Session State
+# Inizializzazione
 if 'mazzo' not in st.session_state:
     st.session_state.mazzo = parse_lessico(dati_lessico)
     random.shuffle(st.session_state.mazzo)
@@ -277,7 +258,7 @@ def prossima_card():
     st.session_state.indice = (st.session_state.indice + 1) % len(st.session_state.mazzo)
     st.session_state.mostra_retro = False
 
-def mischia():
+def mischia_mazzo():
     random.shuffle(st.session_state.mazzo)
     st.session_state.indice = 0
     st.session_state.mostra_retro = False
@@ -288,29 +269,31 @@ st.title("🏛️ Trainer Lessico")
 if st.session_state.indice < len(st.session_state.mazzo):
     item = st.session_state.mazzo[st.session_state.indice]
     
-    # Info Categoria e Progresso
-    col_a, col_b = st.columns([1, 1])
-    with col_a:
+    # Intestazione (Categoria e Contatore)
+    col_sx, col_dx = st.columns(2)
+    with col_sx:
         st.caption(f"Categoria: **{item['cat']}**")
-    with col_b:
-        st.markdown(f"<p style='text-align:right; color:gray;'>{st.session_state.indice + 1} / {len(st.session_state.mazzo)}</p>", unsafe_allow_html=True)
+    with col_dx:
+        st.markdown(f"<div style='text-align: right; color: gray; font-size: 14px;'>{st.session_state.indice + 1} / {len(st.session_state.mazzo)}</div>", unsafe_allow_html=True)
 
-    # AREA CARD
+    st.write("") # Spazio
+
+    # AREA CARD (Bottone Primario)
     if not st.session_state.mostra_retro:
-        # FRONTE: Solo il lemma in grassetto gigante
-        st.button(item['fronte'], key="front_btn", use_container_width=True, on_click=gira_card)
-        st.markdown(f"<style>#root div[data-testid='stButton'] > button p {{ font-size: 70px !important; font-weight: 800; }}</style>", unsafe_allow_html=True)
+        # Inietta variabile CSS per il font gigante sul fronte
+        st.markdown("<style>:root { --card-font-size: 75px; }</style>", unsafe_allow_html=True)
+        st.button(item['fronte'], key="front", type="primary", use_container_width=True, on_click=gira_card)
     else:
-        # RETRO: Paradigma e Traduzione
-        contenuto_retro = f"{item['paradigma']}\n\n{item['traduzione'].upper()}"
-        st.button(contenuto_retro, key="back_btn", use_container_width=True, on_click=gira_card)
-        st.markdown(f"<style>#root div[data-testid='stButton'] > button p {{ font-size: 28px !important; }}</style>", unsafe_allow_html=True)
+        # Inietta variabile CSS per il font ridotto sul retro
+        st.markdown("<style>:root { --card-font-size: 32px; }</style>", unsafe_allow_html=True)
+        testo_retro = f"{item['paradigma']}\n\n{item['traduzione'].upper()}"
+        st.button(testo_retro, key="back", type="primary", use_container_width=True, on_click=gira_card)
 
-    st.write("") # Spaziatore
+    st.write("") # Spazio
 
-    # Navigazione
+    # CONTROLLI INFERIORI (Bottoni Secondari - Non influenzati dal CSS della card)
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
-        st.button("PROSSIMA ➡️", on_click=prossima_card, use_container_width=True)
+        st.button("PROSSIMA ➡️", use_container_width=True, on_click=prossima_card)
     with c3:
-        st.button("🔀", on_click=mischia, use_container_width=True, help="Mischia il mazzo")
+        st.button("🔀", help="Mischia il mazzo", use_container_width=True, on_click=mischia_mazzo)
