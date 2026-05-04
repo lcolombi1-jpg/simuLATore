@@ -2,7 +2,6 @@ import streamlit as st
 import random
 
 # --- DATABASE LESSICALE ---
-# Ho inserito qui tutto il testo che mi hai fornito
 dati_lessico = """
 VERBI
 amo, -as, -avi, -atum, -are (I con.) = amare
@@ -14,7 +13,7 @@ eo, is, ivi, itum, ire andare
 facio, -is, feci, factum, -ere = fare
 possum, potes, potui, posse (composto di sum) potere
 quiesco, -is, quievi, quietum, -ere (III con.) riposare
-duco, -is, duxi, dictum, -ere (III con.) = condurre
+duco, -is, duxi, ductum, -ere (III con.) = condurre
 habeo, -es, -ui, -itum, -ere (II con.) = avere
 sum, es, fui, esse = essere
 video, -es, vidi, visum, -ere (II con.) vedere
@@ -188,26 +187,71 @@ def parse_lessico(testo):
     linee = testo.strip().split('\n')
     for riga in linee:
         riga = riga.strip()
-        # Se la riga contiene un segno di uguaglianza o è una riga di dati valida
-        if "=" in riga or "," in riga:
-            sep = "=" if "=" in riga else ","
-            parti = riga.split(sep, 1)
+        if not riga or riga in ["VERBI", "SOSTANTIVI", "PRONOMI", "AGGETTIVI"]:
+            continue
             
-            latino = parti[0].strip()
-            # La traduzione è la parte dopo l'ultimo separatore trovato
-            traduzione = parti[1].strip() if len(parti) > 1 else "Vedi paradigma"
-            
-            # Il fronte è solo la prima parola del paradigma
-            fronte = latino.split(",")[0].split()[0]
-            
-            cards.append({
-                "fronte": fronte.upper(),
-                "retro": f"**Paradigma/Dati:** {latino}\n\n**Traduzione:** {traduzione}"
-            })
+        # Gestione separatore: alcuni hanno '=' altri no
+        if "=" in riga:
+            latino, traduzione = riga.split("=", 1)
+        else:
+            # Se manca '=', cerchiamo di separare dopo la parte grammaticale (tra parentesi)
+            import re
+            match = re.search(r'(\(.*?\))\s+(.*)', riga)
+            if match:
+                latino = riga[:match.end(1)]
+                traduzione = match.group(2)
+            else:
+                # Caso limite: separiamo dopo la seconda parola se non c'è altro
+                parti = riga.split()
+                if len(parti) > 2:
+                    latino = " ".join(parti[:-1])
+                    traduzione = parti[-1]
+                else:
+                    continue
+
+        latino = latino.strip()
+        traduzione = traduzione.strip()
+        
+        # Il FRONTE è solo la prima parola (nominativo o 1° pers. sing.)
+        # Puliamo da virgole finali
+        fronte = latino.split(",")[0].split()[0].replace(",", "")
+        
+        cards.append({
+            "fronte": fronte.upper(),
+            "paradigma": latino,
+            "traduzione": traduzione
+        })
     return cards
 
 # --- INTERFACCIA STREAMLIT ---
 st.set_page_config(page_title="Flashcards Latino", page_icon="🏛️")
+
+# CSS per rendere la card cliccabile e bella
+st.markdown("""
+    <style>
+    .stButton>button {
+        width: 100%;
+        height: 60px;
+        font-size: 20px;
+    }
+    .card-box {
+        background-color: #f8f9fa;
+        border: 2px solid #dee2e6;
+        border-radius: 15px;
+        padding: 40px;
+        text-align: center;
+        margin: 20px 0;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+    }
+    .fronte-text {
+        color: #1f77b4;
+        font-size: 50px;
+        font-family: 'serif';
+        font-weight: bold;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 st.title("🏛️ Trainer Lessico Latino")
 
 if 'mazzo' not in st.session_state:
@@ -219,37 +263,53 @@ if 'mazzo' not in st.session_state:
 if st.session_state.indice < len(st.session_state.mazzo):
     card = st.session_state.mazzo[st.session_state.indice]
     
-    # Progress bar
-    st.write(f"Parola {st.session_state.indice + 1} di {len(st.session_state.mazzo)}")
-    st.progress((st.session_state.indice + 1) / len(st.session_state.mazzo))
+    # Header Info
+    col_a, col_b = st.columns([3, 1])
+    with col_a:
+        st.write(f"Vocabolo **{st.session_state.indice + 1}** di {len(st.session_state.mazzo)}")
+    with col_b:
+        if st.button("🔄 Mischia"):
+            random.shuffle(st.session_state.mazzo)
+            st.session_state.indice = 0
+            st.session_state.mostra_retro = False
+            st.rerun()
 
-    # Box della parola
-    st.markdown(f"""
-    <div style="height: 200px; display: flex; align-items: center; justify-content: center; 
-    background-color: #f0f2f6; border-radius: 15px; border: 3px solid #ff4b4b; margin: 20px 0px;">
-        <h1 style="color: #31333F; font-family: 'serif'; font-size: 45px;">{card['fronte']}</h1>
-    </div>
-    """, unsafe_allow_html=True)
-
-    if st.button("🔄 MOSTRA TRADUZIONE", use_container_width=True):
-        st.session_state.mostra_retro = True
-
-    if st.session_state.mostra_retro:
-        st.info(card['retro'])
-        if st.button("PROSSIMA PAROLA ➡️", use_container_width=True):
+    # Visualizzazione Card
+    if not st.session_state.mostra_retro:
+        # FRONTE
+        st.markdown(f"""
+            <div class="card-box">
+                <div class="fronte-text">{card['fronte']}</div>
+                <p style="color: #6c757d;">(Clicca il tasto sotto per verificare)</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        if st.button("🔍 VERIFICA"):
+            st.session_state.mostra_retro = True
+            st.rerun()
+    else:
+        # RETRO
+        st.markdown(f"""
+            <div class="card-box" style="background-color: #e7f3ff; border-color: #b8daff;">
+                <h3 style="color: #6c757d; margin-bottom: 5px;">Paradigma / Genitivo:</h3>
+                <p style="font-size: 24px; font-weight: bold;">{card['paradigma']}</p>
+                <hr>
+                <h3 style="color: #6c757d; margin-bottom: 5px;">Traduzione:</h3>
+                <p style="font-size: 24px; color: #d63384;">{card['traduzione']}</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        if st.button("PROSSIMA PAROLA ➡️"):
             st.session_state.indice += 1
             st.session_state.mostra_retro = False
             st.rerun()
 
-    if st.button("🔀 RIMESCOLA TUTTO"):
-        random.shuffle(st.session_state.mazzo)
-        st.session_state.indice = 0
-        st.session_state.mostra_retro = False
-        st.rerun()
+    st.progress((st.session_state.indice) / len(st.session_state.mazzo))
+
 else:
     st.balloons()
-    st.success("Ottimo lavoro! Hai completato tutto il lessico.")
-    if st.button("Ricomincia da capo"):
+    st.success("🎉 Hai completato tutti i vocaboli!")
+    if st.button("Ricomincia il mazzo"):
         st.session_state.indice = 0
         random.shuffle(st.session_state.mazzo)
         st.rerun()
