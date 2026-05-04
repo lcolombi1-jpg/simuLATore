@@ -182,7 +182,9 @@ utilis, -e (II classe) = utile
 pauper, -eris (II classe) = povero
 """
 
-def parse_lessico(testo):
+# CACHING: Streamlit salva in memoria l'elaborazione del testo! Zero lag.
+@st.cache_data
+def carica_mazzo(testo):
     cards = []
     linee = testo.strip().split('\n')
     categoria_attuale = ""
@@ -194,16 +196,13 @@ def parse_lessico(testo):
             categoria_attuale = riga
             continue
             
-        # Divisione sicura: se l'uguale manca, gestiamo l'errore senza crash
         if "=" in riga:
             latino, italiano = riga.split("=", 1)
         else:
-            latino, italiano = riga, "[Traduzione mancante]"
+            latino, italiano = riga, ""
             
         latino = latino.strip()
         italiano = italiano.strip()
-
-        # Estrae solo il primo termine (es. da "amo, -as..." estrae "AMO")
         fronte = latino.replace(",", " ").split()[0]
         
         cards.append({
@@ -217,40 +216,49 @@ def parse_lessico(testo):
 # --- INTERFACCIA STREAMLIT ---
 st.set_page_config(page_title="Flashcards Latino", layout="centered")
 
-# CSS mirato SOLO per il bottone principale (type="primary")
+# CSS STATICO PULTIO: Nessun ri-caricamento a ogni clic
 st.markdown("""
     <style>
-    button[kind="primary"] {
-        height: 350px !important;
-        background-color: #ffffff !important;
-        border: 2px solid #e0e0e0 !important;
-        border-radius: 20px !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
-        color: #1f1f1f !important;
-        transition: transform 0.2s, box-shadow 0.2s !important;
+    .flashcard-box {
+        background-color: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        min-height: 350px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 30px;
+        margin-bottom: 20px;
     }
-    button[kind="primary"]:hover {
-        border-color: #ff4b4b !important;
-        box-shadow: 0 8px 15px rgba(0,0,0,0.1) !important;
-        transform: scale(1.01);
+    .text-front {
+        font-size: 75px;
+        font-weight: 800;
+        color: #1f1f1f;
     }
-    button[kind="primary"] p {
-        font-size: var(--card-font-size, 60px) !important;
-        font-weight: 800 !important;
-        white-space: pre-wrap !important;
-        line-height: 1.4 !important;
+    .text-paradigma {
+        font-size: 26px;
+        color: #555;
+        margin-bottom: 15px;
+    }
+    .text-traduzione {
+        font-size: 40px;
+        font-weight: bold;
+        color: #ff4b4b;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Inizializzazione
+# Inizializzazione Session State
 if 'mazzo' not in st.session_state:
-    st.session_state.mazzo = parse_lessico(dati_lessico)
+    st.session_state.mazzo = carica_mazzo(dati_lessico)
     random.shuffle(st.session_state.mazzo)
     st.session_state.indice = 0
     st.session_state.mostra_retro = False
 
-# Funzioni
+# Funzioni veloci
 def gira_card():
     st.session_state.mostra_retro = not st.session_state.mostra_retro
 
@@ -269,31 +277,34 @@ st.title("🏛️ Trainer Lessico")
 if st.session_state.indice < len(st.session_state.mazzo):
     item = st.session_state.mazzo[st.session_state.indice]
     
-    # Intestazione (Categoria e Contatore)
+    # Intestazione
     col_sx, col_dx = st.columns(2)
     with col_sx:
         st.caption(f"Categoria: **{item['cat']}**")
     with col_dx:
         st.markdown(f"<div style='text-align: right; color: gray; font-size: 14px;'>{st.session_state.indice + 1} / {len(st.session_state.mazzo)}</div>", unsafe_allow_html=True)
 
-    st.write("") # Spazio
-
-    # AREA CARD (Bottone Primario)
+    # RENDERING GRAFICO DELLA CARD (Velocissimo, senza bottoni finti)
     if not st.session_state.mostra_retro:
-        # Inietta variabile CSS per il font gigante sul fronte
-        st.markdown("<style>:root { --card-font-size: 75px; }</style>", unsafe_allow_html=True)
-        st.button(item['fronte'], key="front", type="primary", use_container_width=True, on_click=gira_card)
+        html_card = f"""
+        <div class="flashcard-box">
+            <div class="text-front">{item['fronte']}</div>
+        </div>
+        """
     else:
-        # Inietta variabile CSS per il font ridotto sul retro
-        st.markdown("<style>:root { --card-font-size: 32px; }</style>", unsafe_allow_html=True)
-        testo_retro = f"{item['paradigma']}\n\n{item['traduzione'].upper()}"
-        st.button(testo_retro, key="back", type="primary", use_container_width=True, on_click=gira_card)
+        html_card = f"""
+        <div class="flashcard-box">
+            <div class="text-paradigma">{item['paradigma']}</div>
+            <div class="text-traduzione">{item['traduzione'].upper()}</div>
+        </div>
+        """
+    st.markdown(html_card, unsafe_allow_html=True)
 
-    st.write("") # Spazio
-
-    # CONTROLLI INFERIORI (Bottoni Secondari - Non influenzati dal CSS della card)
+    # BOTTONI DI CONTROLLO (Immediati e stabili)
     c1, c2, c3 = st.columns([1, 2, 1])
+    with c1:
+        st.button("🔄 GIRA", use_container_width=True, on_click=gira_card, type="primary")
     with c2:
         st.button("PROSSIMA ➡️", use_container_width=True, on_click=prossima_card)
     with c3:
-        st.button("🔀", help="Mischia il mazzo", use_container_width=True, on_click=mischia_mazzo)
+        st.button("🔀 MISCHIA", use_container_width=True, on_click=mischia_mazzo)
