@@ -1,243 +1,223 @@
 import streamlit as st
 
-# --- CONFIGURAZIONE PAGINA ---
-st.set_page_config(page_title="Ludus", page_icon="🏛️", layout="wide")
+# --- CONFIGURAZIONE DELLA PAGINA ---
+st.set_page_config(
+    page_title="Ludus",
+    page_icon="🏛️",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
-# --- ESTETICA EUPHORIA + ROMA ANTICA (CSS INIETTATO) ---
+# --- ESTETICA EUPHORIA E ARCHI ROMANI (CSS INIETTATO) ---
 euphoria_css = """
 <style>
-    /* Importiamo Montserrat per i testi normali e Cinzel per lo stile epigrafico romano */
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@400;700;900&display=swap');
+    /* Importazione dei font da Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;700&display=swap');
 
-    /* Sfondo globale scuro stile Euphoria */
+    /* Sfondo scuro e profondo con gradiente radiale */
     .stApp {
-        background: radial-gradient(circle at 50% 50%, #1a0033 0%, #0b001a 100%);
-        color: #ffffff;
+        background: radial-gradient(circle at 50% 50%, #15002b 0%, #05000a 100%) !important;
+        color: #ffffff !important;
         font-family: 'Montserrat', sans-serif;
     }
 
-    /* Nascondi header e footer di default Streamlit */
-    header, footer {visibility: hidden;}
-
-    /* Contenitore per centrare perfettamente il titolo */
-    .title-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        margin-top: -40px;
-        margin-bottom: 50px;
+    /* Rimozione di elementi grafici di default di Streamlit per un look pulito */
+    header, footer, [data-testid="stHeader"] {
+        visibility: hidden !important;
+        height: 0px !important;
     }
 
-    /* Titolo LUDUS Centrato e Neon */
-    .neon-title {
-        font-size: 6rem;
-        font-weight: 900;
+    /* Contenitore principale per centrare il titolo */
+    .title-wrapper {
         text-align: center;
-        text-transform: uppercase;
+        margin-top: 40px;
+        margin-bottom: 60px;
+        width: 100%;
+    }
+
+    /* Titolo LUDUS con effetto Neon */
+    .neon-title {
+        font-family: 'Cinzel', serif;
+        font-size: 5.5rem;
+        font-weight: 700;
         letter-spacing: 15px;
-        color: #fff;
+        color: #ffffff;
+        text-transform: uppercase;
         text-shadow: 
             0 0 10px #b537f2, 
-            0 0 20px #b537f2, 
-            0 0 40px #ff00c8, 
-            0 0 80px #ff00c8;
+            0 0 25px #b537f2, 
+            0 0 50px #ff00c8;
         margin: 0;
-        padding: 0;
-        margin-left: 15px; /* Compensa il letter-spacing per la centratura perfetta */
+        padding-left: 15px;
     }
 
     .subtitle {
-        font-size: 1.2rem;
-        text-align: center;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.1rem;
         color: #00f3ff;
-        text-shadow: 0 0 8px #00f3ff;
-        margin-top: 5px;
-        letter-spacing: 3px;
         text-transform: lowercase;
+        letter-spacing: 8px;
+        text-shadow: 0 0 10px #00f3ff;
+        margin-top: 10px;
     }
 
-    /* --- STILE GENERALE DELLE PORTE AD ARCO DI TRIONFO --- */
+    /* --- STRUTTURA DELLE PORTE AD ARCO (BOTTONI) --- */
     div.stButton > button {
-        height: 450px !important;
+        height: 480px !important;
         width: 100% !important;
         
-        /* Forma ad Arco: tanto arrotondamento sopra, angoli retti sotto */
-        border-radius: 200px 200px 15px 15px !important;
+        /* Taglio ad arco: tondo sopra, dritto sotto */
+        border-radius: 240px 240px 15px 15px !important;
+        
+        /* Interno dell'arco scuro e semitrasparente */
+        background: rgba(8, 2, 18, 0.75) !important;
         backdrop-filter: blur(10px);
+        
+        /* Bordo che funge da tubo neon */
+        border-width: 4px !important;
+        border-style: solid !important;
         
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
-        padding: 20px !important;
+        padding: 30px !important;
     }
 
-    /* Rimuove i margini di default del testo nei bottoni */
-    div.stButton > button p {
-        margin: 0 !important;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-    }
-
-    /* --- STILE EPIGRAFICO (Incisione su pietra con dimensione ridotta anti-capo) --- */
+    /* Testo in grassetto (Latino Epigrafico) */
     div.stButton > button strong {
         font-family: 'Cinzel', serif !important;
-        font-size: 1.6rem !important; /* Ridotto da 2.5rem per evitare che vada a capo */
-        font-weight: 700 !important;
+        font-size: 1.6rem !important;
         letter-spacing: 3px;
+        font-weight: 700 !important;
         display: block;
-        margin-bottom: 20px;
-        transition: all 0.4s ease !important;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
     }
 
-    /* Stile per la traduzione inglese (usiamo il tag <em>) */
+    /* Testo in corsivo (Sottotitolo livello) */
     div.stButton > button em {
         font-family: 'Montserrat', sans-serif !important;
-        font-size: 1.0rem !important;
+        font-size: 0.95rem !important;
         font-style: normal !important;
         text-transform: uppercase;
         letter-spacing: 4px;
-        color: rgba(255, 255, 255, 0.4);
-        
-        /* Effetto inciso più leggero */
-        text-shadow: -1px -1px 1px rgba(0,0,0,0.8), 1px 1px 1px rgba(255,255,255,0.1);
+        color: rgba(255, 255, 255, 0.45);
         display: block;
     }
 
-    /* --- EFFETTI NEON ATTIVI DI BASE + HOVER POTENZIATI --- */
-    
+    /* --- EFFETTI NEON SUI SINGOLI ARCHI --- */
+
     /* Porta 1: Ciano (Discipulus) */
-    div[data-testid="column"]:nth-child(1) button {
-        background: rgba(0, 243, 255, 0.03) !important;
-        border: 2px solid rgba(0, 243, 255, 0.35) !important;
-        box-shadow: 
-            inset 0 20px 50px rgba(0,0,0,0.8), 
-            0 0 20px rgba(0, 243, 255, 0.15) !important;
-    }
-    div[data-testid="column"]:nth-child(1) button strong {
-        color: rgba(0, 243, 255, 0.85) !important;
-        text-shadow: 0 0 10px rgba(0, 243, 255, 0.4), -1px -1px 2px rgba(0,0,0,0.9);
-    }
-    div[data-testid="column"]:nth-child(1) button:hover {
+    div[data-testid="column"]:nth-child(2) button {
         border-color: #00f3ff !important;
         box-shadow: 
-            0 0 45px rgba(0, 243, 255, 0.5), 
-            inset 0 20px 50px rgba(0, 243, 255, 0.2) !important;
-        transform: translateY(-15px);
+            0 0 20px rgba(0, 243, 255, 0.4), 
+            inset 0 0 20px rgba(0, 243, 255, 0.4), 
+            inset 0 0 50px rgba(0,0,0,0.9) !important;
     }
-    div[data-testid="column"]:nth-child(1) button:hover strong {
-        color: #00f3ff !important;
-        text-shadow: 0 0 20px #00f3ff, -1px -1px 2px rgba(0,0,0,0.9);
+    div[data-testid="column"]:nth-child(2) button strong { 
+        color: #00f3ff !important; 
+        text-shadow: 0 0 10px rgba(0, 243, 255, 0.8) !important; 
+    }
+    div[data-testid="column"]:nth-child(2) button:hover {
+        box-shadow: 
+            0 0 40px #00f3ff, 
+            inset 0 0 30px #00f3ff !important;
+        transform: translateY(-12px);
     }
 
     /* Porta 2: Viola (Gladiator) */
-    div[data-testid="column"]:nth-child(2) button {
-        background: rgba(181, 55, 242, 0.03) !important;
-        border: 2px solid rgba(181, 55, 242, 0.35) !important;
-        box-shadow: 
-            inset 0 20px 50px rgba(0,0,0,0.8), 
-            0 0 20px rgba(181, 55, 242, 0.15) !important;
-    }
-    div[data-testid="column"]:nth-child(2) button strong {
-        color: rgba(181, 55, 242, 0.85) !important;
-        text-shadow: 0 0 10px rgba(181, 55, 242, 0.4), -1px -1px 2px rgba(0,0,0,0.9);
-    }
-    div[data-testid="column"]:nth-child(2) button:hover {
+    div[data-testid="column"]:nth-child(3) button {
         border-color: #b537f2 !important;
         box-shadow: 
-            0 0 45px rgba(181, 55, 242, 0.5), 
-            inset 0 20px 50px rgba(181, 55, 242, 0.2) !important;
-        transform: translateY(-15px);
+            0 0 20px rgba(181, 55, 242, 0.4), 
+            inset 0 0 20px rgba(181, 55, 242, 0.4), 
+            inset 0 0 50px rgba(0,0,0,0.9) !important;
     }
-    div[data-testid="column"]:nth-child(2) button:hover strong {
-        color: #b537f2 !important;
-        text-shadow: 0 0 20px #b537f2, -1px -1px 2px rgba(0,0,0,0.9);
+    div[data-testid="column"]:nth-child(3) button strong { 
+        color: #d884ff !important; 
+        text-shadow: 0 0 10px rgba(181, 55, 242, 0.8) !important; 
+    }
+    div[data-testid="column"]:nth-child(3) button:hover {
+        box-shadow: 
+            0 0 40px #b537f2, 
+            inset 0 0 30px #b537f2 !important;
+        transform: translateY(-12px);
     }
 
     /* Porta 3: Fucsia (Imperator) */
-    div[data-testid="column"]:nth-child(3) button {
-        background: rgba(255, 0, 200, 0.03) !important;
-        border: 2px solid rgba(255, 0, 200, 0.35) !important;
-        box-shadow: 
-            inset 0 20px 50px rgba(0,0,0,0.8), 
-            0 0 20px rgba(255, 0, 200, 0.15) !important;
-    }
-    div[data-testid="column"]:nth-child(3) button strong {
-        color: rgba(255, 0, 200, 0.85) !important;
-        text-shadow: 0 0 10px rgba(255, 0, 200, 0.4), -1px -1px 2px rgba(0,0,0,0.9);
-    }
-    div[data-testid="column"]:nth-child(3) button:hover {
+    div[data-testid="column"]:nth-child(4) button {
         border-color: #ff00c8 !important;
         box-shadow: 
-            0 0 45px rgba(255, 0, 200, 0.5), 
-            inset 0 20px 50px rgba(255, 0, 200, 0.2) !important;
-        transform: translateY(-15px);
+            0 0 20px rgba(255, 0, 200, 0.4), 
+            inset 0 0 20px rgba(255, 0, 200, 0.4), 
+            inset 0 0 50px rgba(0,0,0,0.9) !important;
     }
-    div[data-testid="column"]:nth-child(3) button:hover strong {
-        color: #ff00c8 !important;
-        text-shadow: 0 0 20px #ff00c8, -1px -1px 2px rgba(0,0,0,0.9);
+    div[data-testid="column"]:nth-child(4) button strong { 
+        color: #ff70d6 !important; 
+        text-shadow: 0 0 10px rgba(255, 0, 200, 0.8) !important; 
     }
-    
+    div[data-testid="column"]:nth-child(4) button:hover {
+        box-shadow: 
+            0 0 40px #ff00c8, 
+            inset 0 0 30px #ff00c8 !important;
+        transform: translateY(-12px);
+    }
+
 </style>
 """
 st.markdown(euphoria_css, unsafe_allow_html=True)
 
-# --- LOGICA DI NAVIGAZIONE ---
+# --- INIZIALIZZAZIONE STATO DI NAVIGAZIONE ---
 if 'level' not in st.session_state:
     st.session_state.level = None
 
-# --- SCHERMATA INIZIALE (LOBBY ARCHI DI TRIONFO) ---
+# --- LOBBY CON LE TRE PORTE ---
 if st.session_state.level is None:
     
-    # Titolo centrato
+    # Intestazione con titolo centrato
     st.markdown("""
-        <div class="title-container">
+        <div class="title-wrapper">
             <h1 class="neon-title">LUDUS</h1>
             <p class="subtitle">scegli il tuo destino</p>
         </div>
     """, unsafe_allow_html=True)
 
-    # Creiamo 3 colonne con un po' di spazio ai lati per centrare le porte
+    # Griglia di colonne per centrare perfettamente gli archi
     _, col1, col2, col3, _ = st.columns([0.5, 2, 2, 2, 0.5])
 
-    # NOTA: Usiamo il markdown nei bottoni. 
-    # **testo** diventa <strong> (per il latino), *testo* diventa <em> (per l'inglese).
-    
     with col1:
-        if st.button("**DISCIPVLVS**\n\n*beginner*", use_container_width=True):
+        if st.button("**DISCIPVLVS**\n\n*beginner*", key="btn_discipulus"):
             st.session_state.level = "Discipulus"
             st.rerun()
 
     with col2:
-        if st.button("**GLADIATOR**\n\n*intermediate*", use_container_width=True):
+        if st.button("**GLADIATOR**\n\n*intermediate*", key="btn_gladiator"):
             st.session_state.level = "Gladiator"
             st.rerun()
 
     with col3:
-        if st.button("**IMPERATOR**\n\n*pro*", use_container_width=True):
+        if st.button("**IMPERATOR**\n\n*pro*", key="btn_imperator"):
             st.session_state.level = "Imperator"
             st.rerun()
 
-# --- SCHERMATA DEI TEST ---
+# --- SCHERMATA DEL LIVELLO ATTIVO (TEST) ---
 else:
-    level = st.session_state.level
+    # Mostra l'arena del livello selezionato
     st.markdown(f"""
-        <div class="title-container" style="margin-top: 20px;">
-            <h1 class="neon-title" style="font-size:4rem;">{level}</h1>
+        <div class="title-wrapper">
+            <h1 class="neon-title" style="font-size: 4rem;">{st.session_state.level}</h1>
             <p class="subtitle">arena attiva</p>
         </div>
     """, unsafe_allow_html=True)
     
-    # Spazio temporaneo per i test
-    st.info(f"Benvenuto nell'arena, {level}. Qui appariranno gli esercizi.")
+    # Spazio per gli esercizi
+    st.info(f"Benvenuto/a nell'arena {st.session_state.level}. Qui inseriremo gli esercizi di latino!")
     
-    # Bottone di ritorno (stilizzato standard)
+    # Pulsante per tornare alla selezione delle porte
     st.markdown("<br><br>", unsafe_allow_html=True)
-    if st.button("← Torna agli Archi"):
+    if st.button("← Torna alla selezione"):
         st.session_state.level = None
         st.rerun()
