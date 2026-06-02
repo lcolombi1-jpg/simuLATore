@@ -58,22 +58,14 @@ euphoria_css = """
         text-transform: lowercase;
     }
 
-    /* --- STILE DELLE PORTE AD ARCO DI TRIONFO --- */
-    /* Forza dimensioni identiche per tutti i bottoni */
+    /* --- STILE GENERALE DELLE PORTE AD ARCO DI TRIONFO --- */
     div.stButton > button {
         height: 450px !important;
         width: 100% !important;
         
         /* Forma ad Arco: tanto arrotondamento sopra, angoli retti sotto */
         border-radius: 200px 200px 15px 15px !important;
-        
-        /* Effetto vetro/pietra scura */
-        background: rgba(30, 10, 50, 0.4) !important;
-        border: 2px solid rgba(255, 255, 255, 0.1) !important;
         backdrop-filter: blur(10px);
-        
-        /* Ombreggiatura interna per dare profondità all'arco */
-        box-shadow: inset 0 20px 50px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.5) !important;
         
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
         display: flex !important;
@@ -92,31 +84,24 @@ euphoria_css = """
         gap: 15px;
     }
 
-    /* --- STILE EPIGRAFICO (Incisione su pietra) --- */
-    /* Usiamo il tag <strong> (attivato tramite Markdown nel bottone Python) */
+    /* --- STILE EPIGRAFICO (Incisione su pietra con dimensione ridotta anti-capo) --- */
     div.stButton > button strong {
         font-family: 'Cinzel', serif !important;
-        font-size: 2.5rem !important;
+        font-size: 1.6rem !important; /* Ridotto da 2.5rem per evitare che vada a capo */
         font-weight: 700 !important;
-        letter-spacing: 4px;
-        color: #d1d1d1;
-        
-        /* Effetto inciso (Engraved): ombra scura in alto a sx, luce in basso a dx */
-        text-shadow: 
-            -1px -1px 2px rgba(0, 0, 0, 0.9),
-             1px  1px 1px rgba(255, 255, 255, 0.15);
-             
+        letter-spacing: 3px;
         display: block;
         margin-bottom: 20px;
+        transition: all 0.4s ease !important;
     }
 
     /* Stile per la traduzione inglese (usiamo il tag <em>) */
     div.stButton > button em {
         font-family: 'Montserrat', sans-serif !important;
-        font-size: 1.1rem !important;
+        font-size: 1.0rem !important;
         font-style: normal !important;
         text-transform: uppercase;
-        letter-spacing: 5px;
+        letter-spacing: 4px;
         color: rgba(255, 255, 255, 0.4);
         
         /* Effetto inciso più leggero */
@@ -124,39 +109,78 @@ euphoria_css = """
         display: block;
     }
 
-    /* --- EFFETTI NEON HOVER (Le porte si accendono quando passi il mouse) --- */
+    /* --- EFFETTI NEON ATTIVI DI BASE + HOVER POTENZIATI --- */
     
-    /* Porta 1: Ciano */
+    /* Porta 1: Ciano (Discipulus) */
+    div[data-testid="column"]:nth-child(1) button {
+        background: rgba(0, 243, 255, 0.03) !important;
+        border: 2px solid rgba(0, 243, 255, 0.35) !important;
+        box-shadow: 
+            inset 0 20px 50px rgba(0,0,0,0.8), 
+            0 0 20px rgba(0, 243, 255, 0.15) !important;
+    }
+    div[data-testid="column"]:nth-child(1) button strong {
+        color: rgba(0, 243, 255, 0.85) !important;
+        text-shadow: 0 0 10px rgba(0, 243, 255, 0.4), -1px -1px 2px rgba(0,0,0,0.9);
+    }
     div[data-testid="column"]:nth-child(1) button:hover {
         border-color: #00f3ff !important;
-        box-shadow: 0 0 40px rgba(0, 243, 255, 0.3), inset 0 20px 50px rgba(0, 243, 255, 0.1) !important;
+        box-shadow: 
+            0 0 45px rgba(0, 243, 255, 0.5), 
+            inset 0 20px 50px rgba(0, 243, 255, 0.2) !important;
         transform: translateY(-15px);
     }
     div[data-testid="column"]:nth-child(1) button:hover strong {
         color: #00f3ff !important;
-        text-shadow: 0 0 15px #00f3ff, -1px -1px 2px rgba(0,0,0,0.9);
+        text-shadow: 0 0 20px #00f3ff, -1px -1px 2px rgba(0,0,0,0.9);
     }
 
-    /* Porta 2: Viola */
+    /* Porta 2: Viola (Gladiator) */
+    div[data-testid="column"]:nth-child(2) button {
+        background: rgba(181, 55, 242, 0.03) !important;
+        border: 2px solid rgba(181, 55, 242, 0.35) !important;
+        box-shadow: 
+            inset 0 20px 50px rgba(0,0,0,0.8), 
+            0 0 20px rgba(181, 55, 242, 0.15) !important;
+    }
+    div[data-testid="column"]:nth-child(2) button strong {
+        color: rgba(181, 55, 242, 0.85) !important;
+        text-shadow: 0 0 10px rgba(181, 55, 242, 0.4), -1px -1px 2px rgba(0,0,0,0.9);
+    }
     div[data-testid="column"]:nth-child(2) button:hover {
         border-color: #b537f2 !important;
-        box-shadow: 0 0 40px rgba(181, 55, 242, 0.3), inset 0 20px 50px rgba(181, 55, 242, 0.1) !important;
+        box-shadow: 
+            0 0 45px rgba(181, 55, 242, 0.5), 
+            inset 0 20px 50px rgba(181, 55, 242, 0.2) !important;
         transform: translateY(-15px);
     }
     div[data-testid="column"]:nth-child(2) button:hover strong {
         color: #b537f2 !important;
-        text-shadow: 0 0 15px #b537f2, -1px -1px 2px rgba(0,0,0,0.9);
+        text-shadow: 0 0 20px #b537f2, -1px -1px 2px rgba(0,0,0,0.9);
     }
 
-    /* Porta 3: Fucsia */
+    /* Porta 3: Fucsia (Imperator) */
+    div[data-testid="column"]:nth-child(3) button {
+        background: rgba(255, 0, 200, 0.03) !important;
+        border: 2px solid rgba(255, 0, 200, 0.35) !important;
+        box-shadow: 
+            inset 0 20px 50px rgba(0,0,0,0.8), 
+            0 0 20px rgba(255, 0, 200, 0.15) !important;
+    }
+    div[data-testid="column"]:nth-child(3) button strong {
+        color: rgba(255, 0, 200, 0.85) !important;
+        text-shadow: 0 0 10px rgba(255, 0, 200, 0.4), -1px -1px 2px rgba(0,0,0,0.9);
+    }
     div[data-testid="column"]:nth-child(3) button:hover {
         border-color: #ff00c8 !important;
-        box-shadow: 0 0 40px rgba(255, 0, 200, 0.3), inset 0 20px 50px rgba(255, 0, 200, 0.1) !important;
+        box-shadow: 
+            0 0 45px rgba(255, 0, 200, 0.5), 
+            inset 0 20px 50px rgba(255, 0, 200, 0.2) !important;
         transform: translateY(-15px);
     }
     div[data-testid="column"]:nth-child(3) button:hover strong {
         color: #ff00c8 !important;
-        text-shadow: 0 0 15px #ff00c8, -1px -1px 2px rgba(0,0,0,0.9);
+        text-shadow: 0 0 20px #ff00c8, -1px -1px 2px rgba(0,0,0,0.9);
     }
     
 </style>
@@ -183,7 +207,6 @@ if st.session_state.level is None:
 
     # NOTA: Usiamo il markdown nei bottoni. 
     # **testo** diventa <strong> (per il latino), *testo* diventa <em> (per l'inglese).
-    # Il CSS sopra intercetta questi tag e li stila in modo diverso!
     
     with col1:
         if st.button("**DISCIPVLVS**\n\n*beginner*", use_container_width=True):
