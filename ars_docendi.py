@@ -79,13 +79,15 @@ header, footer, #MainMenu {
 
 .gate-title{
     font-family:'Cinzel', serif;
-    font-size:3rem;
+    font-size:1.8rem;
+    letter-spacing:1px;
+    text-align:center;
 }
 
 .gate-sub{
-    margin-top:20px;
-    font-size:1rem;
-    letter-spacing:6px;
+    margin-top:16px;
+    font-size:0.85rem;
+    letter-spacing:4px;
     color:rgba(255,255,255,.4);
 }
 
