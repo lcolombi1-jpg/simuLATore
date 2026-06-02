@@ -1,9 +1,8 @@
-```python
 import streamlit as st
 
-# =====================================================
-# CONFIG PAGINA
-# =====================================================
+# ==================================================
+# CONFIG
+# ==================================================
 
 st.set_page_config(
     page_title="Ludus",
@@ -12,43 +11,34 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# =====================================================
+# ==================================================
+# SESSION STATE
+# ==================================================
+
+if "level" not in st.session_state:
+    st.session_state.level = None
+
+# ==================================================
 # CSS
-# =====================================================
+# ==================================================
 
 st.markdown("""
 <style>
 
-/* -------------------------------------------------- */
-/* FONT */
-/* -------------------------------------------------- */
-
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:wght@300;500&display=swap');
 
-/* -------------------------------------------------- */
-/* STREAMLIT CLEAN */
-/* -------------------------------------------------- */
+/* Nasconde elementi Streamlit */
 
 header,
 footer,
 #MainMenu,
-[data-testid="stToolbar"],
-[data-testid="stDecoration"]{
-    display:none !important;
+[data-testid="stToolbar"]{
+    visibility:hidden;
 }
 
-.block-container{
-    padding-top:0.5rem !important;
-    padding-bottom:0rem !important;
-    max-width:100% !important;
-}
-
-/* -------------------------------------------------- */
-/* PAGINA */
-/* -------------------------------------------------- */
+/* Pagina */
 
 .stApp{
-
     background:
     radial-gradient(
         circle at center,
@@ -60,265 +50,183 @@ footer,
     overflow:hidden;
 }
 
-/* -------------------------------------------------- */
-/* TITOLO */
-/* -------------------------------------------------- */
+.block-container{
+    padding-top:0.5rem;
+    max-width:100%;
+}
+
+/* Titolo */
 
 .title-wrapper{
-
     text-align:center;
-
-    margin-top:10px;
-    margin-bottom:20px;
+    margin-top:5px;
+    margin-bottom:25px;
 }
 
 .main-title{
-
     font-family:'Cinzel', serif;
-
-    font-size:4.8rem;
-
-    color:white;
-
+    font-size:4.5rem;
     letter-spacing:12px;
-
-    margin:0;
+    color:white;
 
     text-shadow:
         0 0 10px #b537f2,
         0 0 25px #b537f2,
-        0 0 55px #ff00c8;
+        0 0 60px #ff00c8;
+
+    margin-bottom:0;
 }
 
 .subtitle{
-
-    margin-top:6px;
-
-    color:#00f0ff;
-
     font-family:'Montserrat', sans-serif;
-
-    letter-spacing:8px;
-
+    color:#00f0ff;
+    letter-spacing:6px;
     text-transform:uppercase;
 
     text-shadow:
         0 0 10px #00f0ff;
 }
 
-/* -------------------------------------------------- */
+/* ================================= */
 /* PORTE */
-/* -------------------------------------------------- */
+/* ================================= */
 
-.gates-row{
+div.stButton > button {
 
-    display:flex;
-
-    justify-content:center;
-
-    gap:50px;
-
-    margin-top:20px;
-
-    flex-wrap:nowrap;
-}
-
-.gate{
-
-    width:240px;
-
-    height:340px;
+    width:240px !important;
+    height:340px !important;
 
     border-radius:
         120px
         120px
         10px
-        10px;
+        10px !important;
 
-    background:#000;
+    background:#000 !important;
 
-    display:flex;
+    color:white !important;
 
-    flex-direction:column;
+    border:3px solid white !important;
 
-    justify-content:center;
+    padding:0 !important;
 
-    align-items:center;
+    transition:all .3s ease !important;
 
-    text-align:center;
+    font-family:'Cinzel', serif !important;
 
-    transition:0.3s ease;
+    font-size:2rem !important;
+
+    font-weight:700 !important;
+
+    letter-spacing:2px !important;
 }
 
-.gate:hover{
-
+div.stButton > button:hover{
     transform:translateY(-8px);
 }
 
-/* -------------------------------------------------- */
-/* TESTI */
-/* -------------------------------------------------- */
+/* Porta 1 */
 
-.gate-title{
+[data-testid="column"]:nth-of-type(1) button{
 
-    font-family:'Cinzel', serif;
+    border-color:#00eaff !important;
 
-    font-size:2rem;
-
-    letter-spacing:3px;
-
-    margin-bottom:18px;
-}
-
-.gate-sub{
-
-    font-family:'Montserrat', sans-serif;
-
-    text-transform:uppercase;
-
-    letter-spacing:5px;
-
-    color:rgba(255,255,255,0.45);
-
-    font-size:0.85rem;
-}
-
-/* -------------------------------------------------- */
-/* DISCIPVLVS */
-/* -------------------------------------------------- */
-
-.cyan{
-
-    border:3px solid #00eaff;
+    color:#00eaff !important;
 
     box-shadow:
         0 0 5px #00eaff,
         0 0 15px #00eaff,
         0 0 35px rgba(0,234,255,.8),
-        0 0 70px rgba(0,234,255,.4);
+        0 0 70px rgba(0,234,255,.4) !important;
 }
 
-.cyan .gate-title{
+/* Porta 2 */
 
-    color:#00eaff;
+[data-testid="column"]:nth-of-type(2) button{
 
-    text-shadow:
-        0 0 10px #00eaff,
-        0 0 20px #00eaff;
-}
+    border-color:#b537f2 !important;
 
-/* -------------------------------------------------- */
-/* GLADIATOR */
-/* -------------------------------------------------- */
-
-.violet{
-
-    border:3px solid #b537f2;
+    color:#d884ff !important;
 
     box-shadow:
         0 0 5px #b537f2,
         0 0 15px #b537f2,
         0 0 35px rgba(181,55,242,.8),
-        0 0 70px rgba(181,55,242,.4);
+        0 0 70px rgba(181,55,242,.4) !important;
 }
 
-.violet .gate-title{
+/* Porta 3 */
 
-    color:#d884ff;
+[data-testid="column"]:nth-of-type(3) button{
 
-    text-shadow:
-        0 0 10px #b537f2,
-        0 0 20px #b537f2;
-}
+    border-color:#ff00c8 !important;
 
-/* -------------------------------------------------- */
-/* IMPERATOR */
-/* -------------------------------------------------- */
-
-.pink{
-
-    border:3px solid #ff00c8;
+    color:#ff70d6 !important;
 
     box-shadow:
         0 0 5px #ff00c8,
         0 0 15px #ff00c8,
         0 0 35px rgba(255,0,200,.8),
-        0 0 70px rgba(255,0,200,.4);
-}
-
-.pink .gate-title{
-
-    color:#ff70d6;
-
-    text-shadow:
-        0 0 10px #ff00c8,
-        0 0 20px #ff00c8;
+        0 0 70px rgba(255,0,200,.4) !important;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# =====================================================
-# TITOLO
-# =====================================================
+# ==================================================
+# HOME
+# ==================================================
 
-st.markdown("""
-<div class="title-wrapper">
+if st.session_state.level is None:
 
-    <div class="main-title">
-        LUDUS
+    st.markdown("""
+    <div class="title-wrapper">
+        <div class="main-title">LUDUS</div>
+        <div class="subtitle">scegli il tuo destino</div>
     </div>
+    """, unsafe_allow_html=True)
 
-    <div class="subtitle">
-        scegli il tuo destino
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        if st.button("DISCIPVLVS", key="disc"):
+            st.session_state.level = "Discipulus"
+            st.rerun()
+
+    with col2:
+        if st.button("GLADIATOR", key="glad"):
+            st.session_state.level = "Gladiator"
+            st.rerun()
+
+    with col3:
+        if st.button("IMPERATOR", key="imp"):
+            st.session_state.level = "Imperator"
+            st.rerun()
+
+# ==================================================
+# SCHERMATE
+# ==================================================
+
+else:
+
+    st.markdown(f"""
+    <div class="title-wrapper">
+        <div class="main-title" style="font-size:3.5rem;">
+            {st.session_state.level}
+        </div>
+        <div class="subtitle">
+            Arena Attiva
+        </div>
     </div>
+    """, unsafe_allow_html=True)
 
-</div>
-""", unsafe_allow_html=True)
+    st.info(
+        f"Benvenuto nell'arena {st.session_state.level}. "
+        "Qui inserirai gli esercizi di latino."
+    )
 
-# =====================================================
-# PORTE
-# =====================================================
+    st.write("")
 
-st.markdown("""
-<div class="gates-row">
-
-    <div class="gate cyan">
-
-        <div class="gate-title">
-            DISCIPVLVS
-        </div>
-
-        <div class="gate-sub">
-            Beginner
-        </div>
-
-    </div>
-
-    <div class="gate violet">
-
-        <div class="gate-title">
-            GLADIATOR
-        </div>
-
-        <div class="gate-sub">
-            Intermediate
-        </div>
-
-    </div>
-
-    <div class="gate pink">
-
-        <div class="gate-title">
-            IMPERATOR
-        </div>
-
-        <div class="gate-sub">
-            Pro
-        </div>
-
-    </div>
-
-</div>
-""", unsafe_allow_html=True)
-```
+    if st.button("← Torna alle porte"):
+        st.session_state.level = None
+        st.rerun()
