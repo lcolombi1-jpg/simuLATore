@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 
 # =====================================================
@@ -12,111 +13,129 @@ st.set_page_config(
 )
 
 # =====================================================
-# SESSION STATE
-# =====================================================
-
-if "level" not in st.session_state:
-    st.session_state.level = None
-
-# =====================================================
 # CSS
 # =====================================================
 
 st.markdown("""
 <style>
 
+/* -------------------------------------------------- */
+/* FONT */
+/* -------------------------------------------------- */
+
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:wght@300;500&display=swap');
 
-header, footer, #MainMenu {
-    visibility:hidden;
+/* -------------------------------------------------- */
+/* STREAMLIT CLEAN */
+/* -------------------------------------------------- */
+
+header,
+footer,
+#MainMenu,
+[data-testid="stToolbar"],
+[data-testid="stDecoration"]{
+    display:none !important;
 }
 
-/* ---------------------------------- */
-/* SFONDO */
-/* ---------------------------------- */
+.block-container{
+    padding-top:0.5rem !important;
+    padding-bottom:0rem !important;
+    max-width:100% !important;
+}
+
+/* -------------------------------------------------- */
+/* PAGINA */
+/* -------------------------------------------------- */
 
 .stApp{
+
     background:
     radial-gradient(
         circle at center,
-        #1d0036 0%,
-        #0b0017 45%,
+        #1c0033 0%,
+        #0b0016 45%,
         #020004 100%
     );
 
-    color:white;
+    overflow:hidden;
 }
 
-/* ---------------------------------- */
+/* -------------------------------------------------- */
 /* TITOLO */
-/* ---------------------------------- */
+/* -------------------------------------------------- */
+
+.title-wrapper{
+
+    text-align:center;
+
+    margin-top:10px;
+    margin-bottom:20px;
+}
 
 .main-title{
-    text-align:center;
-    margin-top:40px;
-}
-
-.main-title h1{
 
     font-family:'Cinzel', serif;
 
-    font-size:6rem;
-
-    letter-spacing:14px;
-
-    margin-bottom:0;
+    font-size:4.8rem;
 
     color:white;
+
+    letter-spacing:12px;
+
+    margin:0;
 
     text-shadow:
         0 0 10px #b537f2,
         0 0 25px #b537f2,
-        0 0 60px #ff00c8;
+        0 0 55px #ff00c8;
 }
 
-.main-title p{
+.subtitle{
 
-    font-family:'Montserrat', sans-serif;
+    margin-top:6px;
 
     color:#00f0ff;
+
+    font-family:'Montserrat', sans-serif;
 
     letter-spacing:8px;
 
     text-transform:uppercase;
 
-    margin-top:8px;
-
     text-shadow:
         0 0 10px #00f0ff;
 }
 
-/* ---------------------------------- */
-/* CONTENITORE ARCHI */
-/* ---------------------------------- */
+/* -------------------------------------------------- */
+/* PORTE */
+/* -------------------------------------------------- */
 
-.arch-space{
-    margin-top:30px;
+.gates-row{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:50px;
+
+    margin-top:20px;
+
+    flex-wrap:nowrap;
 }
 
-/* ---------------------------------- */
-/* ARCHI */
-/* ---------------------------------- */
+.gate{
 
-.arch-preview{
+    width:240px;
 
-    width:270px;
-    height:460px;
-
-    margin:auto;
+    height:340px;
 
     border-radius:
-        135px
-        135px
+        120px
+        120px
         10px
         10px;
 
-    background:
-        rgba(0,0,0,0.97);
+    background:#000;
 
     display:flex;
 
@@ -127,229 +146,179 @@ header, footer, #MainMenu {
     align-items:center;
 
     text-align:center;
+
+    transition:0.3s ease;
 }
 
-.arch-title{
+.gate:hover{
+
+    transform:translateY(-8px);
+}
+
+/* -------------------------------------------------- */
+/* TESTI */
+/* -------------------------------------------------- */
+
+.gate-title{
 
     font-family:'Cinzel', serif;
 
-    font-size:2.1rem;
+    font-size:2rem;
 
     letter-spacing:3px;
 
     margin-bottom:18px;
 }
 
-.arch-sub{
+.gate-sub{
 
     font-family:'Montserrat', sans-serif;
 
-    font-size:0.9rem;
-
-    letter-spacing:6px;
-
     text-transform:uppercase;
 
-    color:rgba(255,255,255,.45);
+    letter-spacing:5px;
+
+    color:rgba(255,255,255,0.45);
+
+    font-size:0.85rem;
 }
 
-/* ---------------------------------- */
-/* CIANO */
-/* ---------------------------------- */
+/* -------------------------------------------------- */
+/* DISCIPVLVS */
+/* -------------------------------------------------- */
 
 .cyan{
 
     border:3px solid #00eaff;
 
     box-shadow:
-        0 0 6px #00eaff,
+        0 0 5px #00eaff,
         0 0 15px #00eaff,
-        0 0 35px rgba(0,234,255,.9),
-        0 0 80px rgba(0,234,255,.55),
-        0 0 130px rgba(0,234,255,.25);
+        0 0 35px rgba(0,234,255,.8),
+        0 0 70px rgba(0,234,255,.4);
 }
 
-.cyan .arch-title{
+.cyan .gate-title{
 
     color:#00eaff;
 
     text-shadow:
         0 0 10px #00eaff,
-        0 0 25px #00eaff;
+        0 0 20px #00eaff;
 }
 
-/* ---------------------------------- */
-/* VIOLA */
-/* ---------------------------------- */
+/* -------------------------------------------------- */
+/* GLADIATOR */
+/* -------------------------------------------------- */
 
 .violet{
 
     border:3px solid #b537f2;
 
     box-shadow:
-        0 0 6px #b537f2,
+        0 0 5px #b537f2,
         0 0 15px #b537f2,
-        0 0 35px rgba(181,55,242,.9),
-        0 0 80px rgba(181,55,242,.55),
-        0 0 130px rgba(181,55,242,.25);
+        0 0 35px rgba(181,55,242,.8),
+        0 0 70px rgba(181,55,242,.4);
 }
 
-.violet .arch-title{
+.violet .gate-title{
 
     color:#d884ff;
 
     text-shadow:
         0 0 10px #b537f2,
-        0 0 25px #b537f2;
+        0 0 20px #b537f2;
 }
 
-/* ---------------------------------- */
-/* FUCSIA */
-/* ---------------------------------- */
+/* -------------------------------------------------- */
+/* IMPERATOR */
+/* -------------------------------------------------- */
 
 .pink{
 
     border:3px solid #ff00c8;
 
     box-shadow:
-        0 0 6px #ff00c8,
+        0 0 5px #ff00c8,
         0 0 15px #ff00c8,
-        0 0 35px rgba(255,0,200,.9),
-        0 0 80px rgba(255,0,200,.55),
-        0 0 130px rgba(255,0,200,.25);
+        0 0 35px rgba(255,0,200,.8),
+        0 0 70px rgba(255,0,200,.4);
 }
 
-.pink .arch-title{
+.pink .gate-title{
 
     color:#ff70d6;
 
     text-shadow:
         0 0 10px #ff00c8,
-        0 0 25px #ff00c8;
-}
-
-/* ---------------------------------- */
-/* BOTTONI */
-/* ---------------------------------- */
-
-div.stButton > button{
-
-    width:270px !important;
-
-    margin-top:20px;
-
-    border-radius:8px !important;
+        0 0 20px #ff00c8;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
 # =====================================================
-# HOME
+# TITOLO
 # =====================================================
 
-if st.session_state.level is None:
+st.markdown("""
+<div class="title-wrapper">
 
-    st.markdown("""
     <div class="main-title">
-        <h1>LUDUS</h1>
-        <p>Scegli il tuo destino</p>
+        LUDUS
     </div>
-    """, unsafe_allow_html=True)
 
-    st.markdown('<div class="arch-space"></div>', unsafe_allow_html=True)
+    <div class="subtitle">
+        scegli il tuo destino
+    </div>
 
-    c1, c2, c3 = st.columns(3)
-
-    # -----------------------------------
-    # DISCIPVLVS
-    # -----------------------------------
-
-    with c1:
-
-        st.markdown("""
-        <div class="arch-preview cyan">
-            <div class="arch-title">
-                DISCIPVLVS
-            </div>
-
-            <div class="arch-sub">
-                Beginner
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        if st.button("ENTRA", key="disc"):
-            st.session_state.level = "Discipulus"
-            st.rerun()
-
-    # -----------------------------------
-    # GLADIATOR
-    # -----------------------------------
-
-    with c2:
-
-        st.markdown("""
-        <div class="arch-preview violet">
-            <div class="arch-title">
-                GLADIATOR
-            </div>
-
-            <div class="arch-sub">
-                Intermediate
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        if st.button("ENTRA", key="glad"):
-            st.session_state.level = "Gladiator"
-            st.rerun()
-
-    # -----------------------------------
-    # IMPERATOR
-    # -----------------------------------
-
-    with c3:
-
-        st.markdown("""
-        <div class="arch-preview pink">
-            <div class="arch-title">
-                IMPERATOR
-            </div>
-
-            <div class="arch-sub">
-                Pro
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        if st.button("ENTRA", key="imp"):
-            st.session_state.level = "Imperator"
-            st.rerun()
+</div>
+""", unsafe_allow_html=True)
 
 # =====================================================
-# PAGINA LIVELLO
+# PORTE
 # =====================================================
 
-else:
+st.markdown("""
+<div class="gates-row">
 
-    st.markdown(f"""
-    <div class="main-title">
-        <h1 style="font-size:4rem;">
-            {st.session_state.level}
-        </h1>
+    <div class="gate cyan">
 
-        <p>Arena Attiva</p>
+        <div class="gate-title">
+            DISCIPVLVS
+        </div>
+
+        <div class="gate-sub">
+            Beginner
+        </div>
+
     </div>
-    """, unsafe_allow_html=True)
 
-    st.info(
-        f"Benvenuto nell'arena {st.session_state.level}. "
-        "Qui verranno mostrati gli esercizi."
-    )
+    <div class="gate violet">
 
-    st.write("")
+        <div class="gate-title">
+            GLADIATOR
+        </div>
 
-    if st.button("← Torna alle porte"):
-        st.session_state.level = None
-        st.rerun()
+        <div class="gate-sub">
+            Intermediate
+        </div>
+
+    </div>
+
+    <div class="gate pink">
+
+        <div class="gate-title">
+            IMPERATOR
+        </div>
+
+        <div class="gate-sub">
+            Pro
+        </div>
+
+    </div>
+
+</div>
+""", unsafe_allow_html=True)
+```
