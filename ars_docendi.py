@@ -1,301 +1,161 @@
 import streamlit as st
 
-# =====================================================
-# CONFIG
-# =====================================================
-
 st.set_page_config(
-    page_title="LUDUS",
+    page_title="Ludus",
     page_icon="🏛️",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    layout="wide"
 )
-
-# =====================================================
-# SESSION STATE
-# =====================================================
-
-if "page" not in st.session_state:
-    st.session_state.page = "home"
-
-# =====================================================
-# CSS
-# =====================================================
 
 st.markdown("""
 <style>
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:wght@300;500&display=swap');
 
-header,
-footer,
-#MainMenu,
-[data-testid="stToolbar"]{
+header, footer, #MainMenu {
     visibility:hidden;
+}
+
+.stApp{
+    background:
+    radial-gradient(circle at center,
+    #19002f 0%,
+    #0a0015 50%,
+    #020004 100%);
 }
 
 .block-container{
     max-width:100%;
-    padding-top:0rem !important;
-    padding-bottom:0rem !important;
+    padding-top:0rem;
 }
 
-/* ------------------------------------------------ */
-/* SFONDO */
-/* ------------------------------------------------ */
-
-.stApp{
-    background:
-    radial-gradient(
-        circle at center,
-        #1a0033 0%,
-        #090012 45%,
-        #020004 100%
-    );
-
-    overflow:hidden;
-}
-
-/* ------------------------------------------------ */
-/* TITOLO */
-/* ------------------------------------------------ */
-
-.title-wrapper{
+.title{
     text-align:center;
-    margin-top:5px;
+    margin-top:20px;
 }
 
-.main-title{
-
+.title h1{
     font-family:'Cinzel', serif;
-
-    font-size:5.5rem;
-
-    letter-spacing:10px;
-
+    font-size:6rem;
     color:white;
-
-    margin-bottom:0;
+    letter-spacing:10px;
 
     text-shadow:
         0 0 10px #ff00ff,
-        0 0 30px #ff00ff,
-        0 0 60px rgba(255,0,255,.6);
+        0 0 40px #ff00ff;
 }
 
 .subtitle{
-
-    color:#00eaff;
-
+    color:#00f0ff;
     text-align:center;
-
-    font-family:'Montserrat', sans-serif;
-
     letter-spacing:8px;
-
-    margin-bottom:40px;
-
-    text-shadow:
-        0 0 10px #00eaff;
+    margin-bottom:50px;
 }
 
-/* ------------------------------------------------ */
-/* ARCHI */
-/* ------------------------------------------------ */
+.gates{
+    display:flex;
+    justify-content:center;
+    gap:80px;
+}
 
-div.stButton > button{
-
-    width:100% !important;
-
-    height:500px !important;
-
-    background:transparent !important;
+.gate{
+    width:260px;
+    height:520px;
 
     border-radius:
-        220px
-        220px
+        130px
+        130px
         10px
-        10px !important;
+        10px;
 
-    font-family:'Cinzel', serif !important;
+    text-decoration:none;
 
-    font-size:2rem !important;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
 
-    font-weight:700 !important;
-
-    transition:0.3s !important;
-
-    color:white !important;
+    background:transparent;
 }
 
-/* Hover */
-
-div.stButton > button:hover{
-
-    transform:translateY(-10px);
+.gate-title{
+    font-family:'Cinzel', serif;
+    font-size:3rem;
 }
 
-/* ------------------------------------------------ */
-/* PORTA 1 */
-/* ------------------------------------------------ */
+.gate-sub{
+    margin-top:20px;
+    font-size:1rem;
+    letter-spacing:6px;
+    color:rgba(255,255,255,.4);
+}
 
-[data-testid="column"]:nth-child(1) button{
-
-    border:4px solid #00eaff !important;
-
-    color:#00eaff !important;
-
-    text-shadow:
-        0 0 10px #00eaff,
-        0 0 20px #00eaff !important;
+.cyan{
+    border:4px solid #00f0ff;
 
     box-shadow:
-        0 0 10px #00eaff,
-        0 0 30px #00eaff,
-        0 0 60px rgba(0,234,255,.8),
-        0 0 120px rgba(0,234,255,.4) !important;
+        0 0 15px #00f0ff,
+        0 0 50px #00f0ff,
+        0 0 100px rgba(0,240,255,.5);
 }
 
-/* ------------------------------------------------ */
-/* PORTA 2 */
-/* ------------------------------------------------ */
-
-[data-testid="column"]:nth-child(2) button{
-
-    border:4px solid #c442ff !important;
-
-    color:#d56bff !important;
-
-    text-shadow:
-        0 0 10px #d56bff,
-        0 0 20px #d56bff !important;
-
-    box-shadow:
-        0 0 10px #c442ff,
-        0 0 30px #c442ff,
-        0 0 60px rgba(196,66,255,.8),
-        0 0 120px rgba(196,66,255,.4) !important;
+.cyan .gate-title{
+    color:#00f0ff;
 }
 
-/* ------------------------------------------------ */
-/* PORTA 3 */
-/* ------------------------------------------------ */
-
-[data-testid="column"]:nth-child(3) button{
-
-    border:4px solid #ff006e !important;
-
-    color:#ff4ca0 !important;
-
-    text-shadow:
-        0 0 10px #ff4ca0,
-        0 0 20px #ff4ca0 !important;
+.violet{
+    border:4px solid #d64dff;
 
     box-shadow:
-        0 0 10px #ff006e,
-        0 0 30px #ff006e,
-        0 0 60px rgba(255,0,110,.8),
-        0 0 120px rgba(255,0,110,.4) !important;
+        0 0 15px #d64dff,
+        0 0 50px #d64dff,
+        0 0 100px rgba(214,77,255,.5);
+}
+
+.violet .gate-title{
+    color:#d64dff;
+}
+
+.pink{
+    border:4px solid #ff0077;
+
+    box-shadow:
+        0 0 15px #ff0077,
+        0 0 50px #ff0077,
+        0 0 100px rgba(255,0,119,.5);
+}
+
+.pink .gate-title{
+    color:#ff0077;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# =====================================================
-# HOME
-# =====================================================
+st.markdown("""
+<div class="title">
+<h1>LUDUS</h1>
+</div>
 
-if st.session_state.page == "home":
+<div class="subtitle">
+scegli il tuo destino
+</div>
 
-    st.markdown("""
-    <div class="title-wrapper">
-        <div class="main-title">LUDUS</div>
-    </div>
+<div class="gates">
 
-    <div class="subtitle">
-        scegli il tuo destino
-    </div>
-    """, unsafe_allow_html=True)
+<a class="gate cyan" href="/Discipulus">
+<div class="gate-title">DISCIPVLVS</div>
+<div class="gate-sub">BEGINNER</div>
+</a>
 
-    col1, col2, col3 = st.columns(3)
+<a class="gate violet" href="/Gladiator">
+<div class="gate-title">GLADIATOR</div>
+<div class="gate-sub">INTERMEDIATE</div>
+</a>
 
-    with col1:
+<a class="gate pink" href="/Imperator">
+<div class="gate-title">IMPERATOR</div>
+<div class="gate-sub">PRO</div>
+</a>
 
-        if st.button(
-            "DISCIPVLVS\n\nBEGINNER",
-            key="disc"
-        ):
-            st.session_state.page = "discipulus"
-            st.rerun()
-
-    with col2:
-
-        if st.button(
-            "GLADIATOR\n\nINTERMEDIATE",
-            key="glad"
-        ):
-            st.session_state.page = "gladiator"
-            st.rerun()
-
-    with col3:
-
-        if st.button(
-            "IMPERATOR\n\nPRO",
-            key="imp"
-        ):
-            st.session_state.page = "imperator"
-            st.rerun()
-
-# =====================================================
-# DISCIPULUS
-# =====================================================
-
-elif st.session_state.page == "discipulus":
-
-    st.markdown("""
-    <div class="title-wrapper">
-        <div class="main-title">DISCIPVLVS</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.info("Qui andranno gli esercizi beginner.")
-
-    if st.button("← Torna"):
-        st.session_state.page = "home"
-        st.rerun()
-
-# =====================================================
-# GLADIATOR
-# =====================================================
-
-elif st.session_state.page == "gladiator":
-
-    st.markdown("""
-    <div class="title-wrapper">
-        <div class="main-title">GLADIATOR</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.info("Qui andranno gli esercizi intermediate.")
-
-    if st.button("← Torna"):
-        st.session_state.page = "home"
-        st.rerun()
-
-# =====================================================
-# IMPERATOR
-# =====================================================
-
-elif st.session_state.page == "imperator":
-
-    st.markdown("""
-    <div class="title-wrapper">
-        <div class="main-title">IMPERATOR</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.info("Qui andranno gli esercizi avanzati.")
-
-    if st.button("← Torna"):
-        st.session_state.page = "home"
-        st.rerun()
+</div>
+""", unsafe_allow_html=True)
