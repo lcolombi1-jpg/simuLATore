@@ -135,7 +135,7 @@ header, footer, #MainMenu {
 
 st.markdown("""
 <div class="title">
-<h1>LUDUS</h1>
+<h1>LVDVS</h1>
 </div>
 
 <div class="subtitle">
