@@ -87,91 +87,87 @@ footer,
         0 0 10px #00f0ff;
 }
 
-/* ================================= */
-/* PORTE */
-/* ================================= */
+/* PORTA BASE */
 
 div.stButton > button {
 
     width:240px !important;
     height:340px !important;
 
+    background:#000 !important;
+
     border-radius:
         120px
         120px
-        10px
-        10px !important;
-
-    background:#000 !important;
-
-    color:white !important;
-
-    border:3px solid white !important;
-
-    padding:0 !important;
-
-    transition:all .3s ease !important;
+        12px
+        12px !important;
 
     font-family:'Cinzel', serif !important;
-
     font-size:2rem !important;
-
     font-weight:700 !important;
 
-    letter-spacing:2px !important;
+    transition:all .3s ease !important;
 }
 
-div.stButton > button:hover{
-    transform:translateY(-8px);
-}
+/* DISCIPVLVS */
 
-/* Porta 1 */
+button[kind="secondary"]:nth-of-type(1){
 
-[data-testid="column"]:nth-of-type(1) button{
+    border:4px solid #00f0ff !important;
 
-    border-color:#00eaff !important;
+    color:#00f0ff !important;
 
-    color:#00eaff !important;
+    text-shadow:
+        0 0 10px #00f0ff,
+        0 0 20px #00f0ff !important;
 
     box-shadow:
-        0 0 5px #00eaff,
-        0 0 15px #00eaff,
-        0 0 35px rgba(0,234,255,.8),
-        0 0 70px rgba(0,234,255,.4) !important;
+        0 0 5px #00f0ff,
+        0 0 15px #00f0ff,
+        0 0 30px #00f0ff,
+        0 0 60px #00f0ff,
+        0 0 120px rgba(0,240,255,.7) !important;
 }
 
-/* Porta 2 */
+/* GLADIATOR */
 
-[data-testid="column"]:nth-of-type(2) button{
+button[kind="secondary"]:nth-of-type(2){
 
-    border-color:#b537f2 !important;
+    border:4px solid #b537f2 !important;
 
     color:#d884ff !important;
+
+    text-shadow:
+        0 0 10px #b537f2,
+        0 0 20px #b537f2 !important;
 
     box-shadow:
         0 0 5px #b537f2,
         0 0 15px #b537f2,
-        0 0 35px rgba(181,55,242,.8),
-        0 0 70px rgba(181,55,242,.4) !important;
+        0 0 30px #b537f2,
+        0 0 60px #b537f2,
+        0 0 120px rgba(181,55,242,.7) !important;
 }
 
-/* Porta 3 */
+/* IMPERATOR */
 
-[data-testid="column"]:nth-of-type(3) button{
+button[kind="secondary"]:nth-of-type(3){
 
-    border-color:#ff00c8 !important;
+    border:4px solid #ff00c8 !important;
 
     color:#ff70d6 !important;
+
+    text-shadow:
+        0 0 10px #ff00c8,
+        0 0 20px #ff00c8 !important;
 
     box-shadow:
         0 0 5px #ff00c8,
         0 0 15px #ff00c8,
-        0 0 35px rgba(255,0,200,.8),
-        0 0 70px rgba(255,0,200,.4) !important;
+        0 0 30px #ff00c8,
+        0 0 60px #ff00c8,
+        0 0 120px rgba(255,0,200,.7) !important;
 }
-
-</style>
-""", unsafe_allow_html=True)
 
 # ==================================================
 # HOME
