@@ -1,8 +1,8 @@
 import streamlit as st
 
-# ==================================================
-# CONFIGURAZIONE PAGINA
-# ==================================================
+# =====================================================
+# CONFIG PAGINA
+# =====================================================
 
 st.set_page_config(
     page_title="Ludus",
@@ -11,54 +11,60 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ==================================================
-# CSS
-# ==================================================
+# =====================================================
+# SESSION STATE
+# =====================================================
 
-css = """
+if "level" not in st.session_state:
+    st.session_state.level = None
+
+# =====================================================
+# CSS
+# =====================================================
+
+st.markdown("""
 <style>
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@300;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:wght@300;500&display=swap');
 
-/* --------------------------------------------------
-   PAGINA
--------------------------------------------------- */
+header, footer, #MainMenu {
+    visibility:hidden;
+}
+
+/* ---------------------------------- */
+/* SFONDO */
+/* ---------------------------------- */
 
 .stApp{
     background:
     radial-gradient(
         circle at center,
-        #170028 0%,
-        #080010 45%,
+        #1d0036 0%,
+        #0b0017 45%,
         #020004 100%
-    ) !important;
+    );
 
     color:white;
 }
 
-/* Rimuove elementi Streamlit */
+/* ---------------------------------- */
+/* TITOLO */
+/* ---------------------------------- */
 
-header,
-footer,
-[data-testid="stHeader"]{
-    display:none !important;
-}
-
-/* --------------------------------------------------
-   TITOLO
--------------------------------------------------- */
-
-.title-wrapper{
+.main-title{
     text-align:center;
-    margin-top:50px;
-    margin-bottom:70px;
+    margin-top:40px;
 }
 
-.neon-title{
+.main-title h1{
+
     font-family:'Cinzel', serif;
+
     font-size:6rem;
-    font-weight:700;
-    letter-spacing:16px;
+
+    letter-spacing:14px;
+
+    margin-bottom:0;
 
     color:white;
 
@@ -66,287 +72,284 @@ footer,
         0 0 10px #b537f2,
         0 0 25px #b537f2,
         0 0 60px #ff00c8;
-
-    margin:0;
 }
 
-.subtitle{
-    margin-top:12px;
+.main-title p{
 
     font-family:'Montserrat', sans-serif;
-    font-size:1rem;
 
-    color:#00f3ff;
+    color:#00f0ff;
 
     letter-spacing:8px;
+
     text-transform:uppercase;
 
-    text-shadow:0 0 10px #00f3ff;
+    margin-top:8px;
+
+    text-shadow:
+        0 0 10px #00f0ff;
 }
 
-/* --------------------------------------------------
-   ARCHI
--------------------------------------------------- */
+/* ---------------------------------- */
+/* CONTENITORE ARCHI */
+/* ---------------------------------- */
 
-div.stButton{
+.arch-space{
+    margin-top:30px;
+}
+
+/* ---------------------------------- */
+/* ARCHI */
+/* ---------------------------------- */
+
+.arch-preview{
+
+    width:270px;
+    height:460px;
+
+    margin:auto;
+
+    border-radius:
+        135px
+        135px
+        10px
+        10px;
+
+    background:
+        rgba(0,0,0,0.97);
+
     display:flex;
+
+    flex-direction:column;
+
     justify-content:center;
+
+    align-items:center;
+
+    text-align:center;
 }
 
-div.stButton > button{
+.arch-title{
 
-    width:320px !important;
-    height:560px !important;
+    font-family:'Cinzel', serif;
 
-    background:rgba(0,0,0,0.95) !important;
+    font-size:2.1rem;
 
-    border-radius:160px 160px 12px 12px !important;
+    letter-spacing:3px;
 
-    border:3px solid transparent !important;
-
-    padding-top:180px !important;
-    padding-bottom:40px !important;
-
-    display:flex !important;
-    flex-direction:column !important;
-    justify-content:flex-start !important;
-    align-items:center !important;
-
-    transition:all .35s ease !important;
+    margin-bottom:18px;
 }
 
-/* testo principale */
+.arch-sub{
 
-div.stButton > button strong{
-
-    font-family:'Cinzel', serif !important;
-
-    font-size:2rem !important;
-
-    letter-spacing:4px;
-
-    margin-bottom:25px;
-
-    display:block;
-}
-
-/* sottotitolo */
-
-div.stButton > button em{
-
-    font-family:'Montserrat', sans-serif !important;
-
-    font-style:normal !important;
-
-    text-transform:uppercase;
-
-    letter-spacing:4px;
+    font-family:'Montserrat', sans-serif;
 
     font-size:0.9rem;
 
-    color:rgba(255,255,255,0.55);
+    letter-spacing:6px;
+
+    text-transform:uppercase;
+
+    color:rgba(255,255,255,.45);
 }
 
-/* --------------------------------------------------
-   DISCIPVLVS
--------------------------------------------------- */
+/* ---------------------------------- */
+/* CIANO */
+/* ---------------------------------- */
 
-div[data-testid="column"]:nth-child(2) button{
+.cyan{
 
-    border-color:#00f3ff !important;
+    border:3px solid #00eaff;
 
     box-shadow:
-        0 0 8px #00f3ff,
-        0 0 20px rgba(0,243,255,.9),
-        0 0 50px rgba(0,243,255,.6),
-        0 0 100px rgba(0,243,255,.25) !important;
+        0 0 6px #00eaff,
+        0 0 15px #00eaff,
+        0 0 35px rgba(0,234,255,.9),
+        0 0 80px rgba(0,234,255,.55),
+        0 0 130px rgba(0,234,255,.25);
 }
 
-div[data-testid="column"]:nth-child(2) button strong{
+.cyan .arch-title{
 
-    color:#00f3ff !important;
+    color:#00eaff;
 
     text-shadow:
-        0 0 10px #00f3ff,
-        0 0 20px #00f3ff;
+        0 0 10px #00eaff,
+        0 0 25px #00eaff;
 }
 
-div[data-testid="column"]:nth-child(2) button:hover{
+/* ---------------------------------- */
+/* VIOLA */
+/* ---------------------------------- */
 
-    transform:translateY(-12px) scale(1.03);
+.violet{
+
+    border:3px solid #b537f2;
 
     box-shadow:
-        0 0 12px #00f3ff,
-        0 0 30px #00f3ff,
-        0 0 70px #00f3ff,
-        0 0 140px rgba(0,243,255,.4) !important;
+        0 0 6px #b537f2,
+        0 0 15px #b537f2,
+        0 0 35px rgba(181,55,242,.9),
+        0 0 80px rgba(181,55,242,.55),
+        0 0 130px rgba(181,55,242,.25);
 }
 
-/* --------------------------------------------------
-   GLADIATOR
--------------------------------------------------- */
+.violet .arch-title{
 
-div[data-testid="column"]:nth-child(3) button{
-
-    border-color:#b537f2 !important;
-
-    box-shadow:
-        0 0 8px #b537f2,
-        0 0 20px rgba(181,55,242,.9),
-        0 0 50px rgba(181,55,242,.6),
-        0 0 100px rgba(181,55,242,.25) !important;
-}
-
-div[data-testid="column"]:nth-child(3) button strong{
-
-    color:#d884ff !important;
+    color:#d884ff;
 
     text-shadow:
         0 0 10px #b537f2,
-        0 0 20px #b537f2;
+        0 0 25px #b537f2;
 }
 
-div[data-testid="column"]:nth-child(3) button:hover{
+/* ---------------------------------- */
+/* FUCSIA */
+/* ---------------------------------- */
 
-    transform:translateY(-12px) scale(1.03);
+.pink{
+
+    border:3px solid #ff00c8;
 
     box-shadow:
-        0 0 12px #b537f2,
-        0 0 30px #b537f2,
-        0 0 70px #b537f2,
-        0 0 140px rgba(181,55,242,.4) !important;
+        0 0 6px #ff00c8,
+        0 0 15px #ff00c8,
+        0 0 35px rgba(255,0,200,.9),
+        0 0 80px rgba(255,0,200,.55),
+        0 0 130px rgba(255,0,200,.25);
 }
 
-/* --------------------------------------------------
-   IMPERATOR
--------------------------------------------------- */
+.pink .arch-title{
 
-div[data-testid="column"]:nth-child(4) button{
-
-    border-color:#ff00c8 !important;
-
-    box-shadow:
-        0 0 8px #ff00c8,
-        0 0 20px rgba(255,0,200,.9),
-        0 0 50px rgba(255,0,200,.6),
-        0 0 100px rgba(255,0,200,.25) !important;
-}
-
-div[data-testid="column"]:nth-child(4) button strong{
-
-    color:#ff70d6 !important;
+    color:#ff70d6;
 
     text-shadow:
         0 0 10px #ff00c8,
-        0 0 20px #ff00c8;
+        0 0 25px #ff00c8;
 }
 
-div[data-testid="column"]:nth-child(4) button:hover{
+/* ---------------------------------- */
+/* BOTTONI */
+/* ---------------------------------- */
 
-    transform:translateY(-12px) scale(1.03);
+div.stButton > button{
 
-    box-shadow:
-        0 0 12px #ff00c8,
-        0 0 30px #ff00c8,
-        0 0 70px #ff00c8,
-        0 0 140px rgba(255,0,200,.4) !important;
-}
+    width:270px !important;
 
-/* --------------------------------------------------
-   PAGINA ARENA
--------------------------------------------------- */
+    margin-top:20px;
 
-.arena-title{
-    text-align:center;
-    margin-top:70px;
+    border-radius:8px !important;
 }
 
 </style>
-"""
+""", unsafe_allow_html=True)
 
-st.markdown(css, unsafe_allow_html=True)
-
-# ==================================================
-# STATO
-# ==================================================
-
-if "level" not in st.session_state:
-    st.session_state.level = None
-
-# ==================================================
+# =====================================================
 # HOME
-# ==================================================
+# =====================================================
 
 if st.session_state.level is None:
 
-    st.markdown(
-        """
-        <div class="title-wrapper">
-            <h1 class="neon-title">LUDUS</h1>
-            <div class="subtitle">scegli il tuo destino</div>
+    st.markdown("""
+    <div class="main-title">
+        <h1>LUDUS</h1>
+        <p>Scegli il tuo destino</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="arch-space"></div>', unsafe_allow_html=True)
+
+    c1, c2, c3 = st.columns(3)
+
+    # -----------------------------------
+    # DISCIPVLVS
+    # -----------------------------------
+
+    with c1:
+
+        st.markdown("""
+        <div class="arch-preview cyan">
+            <div class="arch-title">
+                DISCIPVLVS
+            </div>
+
+            <div class="arch-sub">
+                Beginner
+            </div>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+        """, unsafe_allow_html=True)
 
-    spacer1, col1, col2, col3, spacer2 = st.columns(
-        [0.6, 2, 2, 2, 0.6]
-    )
-
-    with col1:
-        if st.button(
-            "**DISCIPVLVS**\n\n*beginner*",
-            key="discipulus"
-        ):
+        if st.button("ENTRA", key="disc"):
             st.session_state.level = "Discipulus"
             st.rerun()
 
-    with col2:
-        if st.button(
-            "**GLADIATOR**\n\n*intermediate*",
-            key="gladiator"
-        ):
+    # -----------------------------------
+    # GLADIATOR
+    # -----------------------------------
+
+    with c2:
+
+        st.markdown("""
+        <div class="arch-preview violet">
+            <div class="arch-title">
+                GLADIATOR
+            </div>
+
+            <div class="arch-sub">
+                Intermediate
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if st.button("ENTRA", key="glad"):
             st.session_state.level = "Gladiator"
             st.rerun()
 
-    with col3:
-        if st.button(
-            "**IMPERATOR**\n\n*pro*",
-            key="imperator"
-        ):
+    # -----------------------------------
+    # IMPERATOR
+    # -----------------------------------
+
+    with c3:
+
+        st.markdown("""
+        <div class="arch-preview pink">
+            <div class="arch-title">
+                IMPERATOR
+            </div>
+
+            <div class="arch-sub">
+                Pro
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if st.button("ENTRA", key="imp"):
             st.session_state.level = "Imperator"
             st.rerun()
 
-# ==================================================
-# ARENA
-# ==================================================
+# =====================================================
+# PAGINA LIVELLO
+# =====================================================
 
 else:
 
-    st.markdown(
-        f"""
-        <div class="arena-title">
-            <h1 class="neon-title" style="font-size:4rem;">
-                {st.session_state.level}
-            </h1>
+    st.markdown(f"""
+    <div class="main-title">
+        <h1 style="font-size:4rem;">
+            {st.session_state.level}
+        </h1>
 
-            <div class="subtitle">
-                arena attiva
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.markdown("### ⚔️ Esercizi in arrivo")
+        <p>Arena Attiva</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.info(
         f"Benvenuto nell'arena {st.session_state.level}. "
-        "Qui appariranno gli esercizi di latino."
+        "Qui verranno mostrati gli esercizi."
     )
 
-    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.write("")
 
-    if st.button("← Torna alla selezione"):
+    if st.button("← Torna alle porte"):
         st.session_state.level = None
         st.rerun()
