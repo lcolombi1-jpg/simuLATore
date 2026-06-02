@@ -1,6 +1,9 @@
 import streamlit as st
 
-# --- CONFIGURAZIONE DELLA PAGINA ---
+# ==================================================
+# CONFIGURAZIONE PAGINA
+# ==================================================
+
 st.set_page_config(
     page_title="Ludus",
     page_icon="🏛️",
@@ -8,216 +11,342 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- ESTETICA EUPHORIA E ARCHI ROMANI (CSS INIETTATO) ---
-euphoria_css = """
+# ==================================================
+# CSS
+# ==================================================
+
+css = """
 <style>
-    /* Importazione dei font da Google Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;700&display=swap');
 
-    /* Sfondo scuro e profondo con gradiente radiale */
-    .stApp {
-        background: radial-gradient(circle at 50% 50%, #15002b 0%, #05000a 100%) !important;
-        color: #ffffff !important;
-        font-family: 'Montserrat', sans-serif;
-    }
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@300;500;700&display=swap');
 
-    /* Rimozione di elementi grafici di default di Streamlit per un look pulito */
-    header, footer, [data-testid="stHeader"] {
-        visibility: hidden !important;
-        height: 0px !important;
-    }
+/* --------------------------------------------------
+   PAGINA
+-------------------------------------------------- */
 
-    /* Contenitore principale per centrare il titolo */
-    .title-wrapper {
-        text-align: center;
-        margin-top: 40px;
-        margin-bottom: 60px;
-        width: 100%;
-    }
+.stApp{
+    background:
+    radial-gradient(
+        circle at center,
+        #170028 0%,
+        #080010 45%,
+        #020004 100%
+    ) !important;
 
-    /* Titolo LUDUS con effetto Neon */
-    .neon-title {
-        font-family: 'Cinzel', serif;
-        font-size: 5.5rem;
-        font-weight: 700;
-        letter-spacing: 15px;
-        color: #ffffff;
-        text-transform: uppercase;
-        text-shadow: 
-            0 0 10px #b537f2, 
-            0 0 25px #b537f2, 
-            0 0 50px #ff00c8;
-        margin: 0;
-        padding-left: 15px;
-    }
+    color:white;
+}
 
-    .subtitle {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 1.1rem;
-        color: #00f3ff;
-        text-transform: lowercase;
-        letter-spacing: 8px;
-        text-shadow: 0 0 10px #00f3ff;
-        margin-top: 10px;
-    }
+/* Rimuove elementi Streamlit */
 
-    /* --- STRUTTURA DELLE PORTE AD ARCO (BOTTONI) --- */
-    div.stButton > button {
-        height: 480px !important;
-        width: 100% !important;
-        
-        /* Taglio ad arco: tondo sopra, dritto sotto */
-        border-radius: 240px 240px 15px 15px !important;
-        
-        /* Interno dell'arco scuro e semitrasparente */
-        background: rgba(8, 2, 18, 0.75) !important;
-        backdrop-filter: blur(10px);
-        
-        /* Bordo che funge da tubo neon */
-        border-width: 4px !important;
-        border-style: solid !important;
-        
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 30px !important;
-    }
+header,
+footer,
+[data-testid="stHeader"]{
+    display:none !important;
+}
 
-    /* Testo in grassetto (Latino Epigrafico) */
-    div.stButton > button strong {
-        font-family: 'Cinzel', serif !important;
-        font-size: 1.6rem !important;
-        letter-spacing: 3px;
-        font-weight: 700 !important;
-        display: block;
-        margin-bottom: 12px;
-        transition: all 0.3s ease;
-    }
+/* --------------------------------------------------
+   TITOLO
+-------------------------------------------------- */
 
-    /* Testo in corsivo (Sottotitolo livello) */
-    div.stButton > button em {
-        font-family: 'Montserrat', sans-serif !important;
-        font-size: 0.95rem !important;
-        font-style: normal !important;
-        text-transform: uppercase;
-        letter-spacing: 4px;
-        color: rgba(255, 255, 255, 0.45);
-        display: block;
-    }
+.title-wrapper{
+    text-align:center;
+    margin-top:50px;
+    margin-bottom:70px;
+}
 
-    /* --- EFFETTI NEON SUI SINGOLI ARCHI --- */
+.neon-title{
+    font-family:'Cinzel', serif;
+    font-size:6rem;
+    font-weight:700;
+    letter-spacing:16px;
 
-    /* Porta 1: Ciano (Discipulus) */
-    div[data-testid="column"]:nth-child(2) button {
-        border-color: #00f3ff !important;
-        box-shadow: 
-            0 0 20px rgba(0, 243, 255, 0.4), 
-            inset 0 0 20px rgba(0, 243, 255, 0.4), 
-            inset 0 0 50px rgba(0,0,0,0.9) !important;
-    }
-    div[data-testid="column"]:nth-child(2) button strong { 
-        color: #00f3ff !important; 
-        text-shadow: 0 0 10px rgba(0, 243, 255, 0.8) !important; 
-    }
-    div[data-testid="column"]:nth-child(2) button:hover {
-        box-shadow: 
-            0 0 40px #00f3ff, 
-            inset 0 0 30px #00f3ff !important;
-        transform: translateY(-12px);
-    }
+    color:white;
 
-    /* Porta 2: Viola (Gladiator) */
-    div[data-testid="column"]:nth-child(3) button {
-        border-color: #b537f2 !important;
-        box-shadow: 
-            0 0 20px rgba(181, 55, 242, 0.4), 
-            inset 0 0 20px rgba(181, 55, 242, 0.4), 
-            inset 0 0 50px rgba(0,0,0,0.9) !important;
-    }
-    div[data-testid="column"]:nth-child(3) button strong { 
-        color: #d884ff !important; 
-        text-shadow: 0 0 10px rgba(181, 55, 242, 0.8) !important; 
-    }
-    div[data-testid="column"]:nth-child(3) button:hover {
-        box-shadow: 
-            0 0 40px #b537f2, 
-            inset 0 0 30px #b537f2 !important;
-        transform: translateY(-12px);
-    }
+    text-shadow:
+        0 0 10px #b537f2,
+        0 0 25px #b537f2,
+        0 0 60px #ff00c8;
 
-    /* Porta 3: Fucsia (Imperator) */
-    div[data-testid="column"]:nth-child(4) button {
-        border-color: #ff00c8 !important;
-        box-shadow: 
-            0 0 20px rgba(255, 0, 200, 0.4), 
-            inset 0 0 20px rgba(255, 0, 200, 0.4), 
-            inset 0 0 50px rgba(0,0,0,0.9) !important;
-    }
-    div[data-testid="column"]:nth-child(4) button strong { 
-        color: #ff70d6 !important; 
-        text-shadow: 0 0 10px rgba(255, 0, 200, 0.8) !important; 
-    }
-    div[data-testid="column"]:nth-child(4) button:hover {
-        box-shadow: 
-            0 0 40px #ff00c8, 
-            inset 0 0 30px #ff00c8 !important;
-        transform: translateY(-12px);
-    }
+    margin:0;
+}
+
+.subtitle{
+    margin-top:12px;
+
+    font-family:'Montserrat', sans-serif;
+    font-size:1rem;
+
+    color:#00f3ff;
+
+    letter-spacing:8px;
+    text-transform:uppercase;
+
+    text-shadow:0 0 10px #00f3ff;
+}
+
+/* --------------------------------------------------
+   ARCHI
+-------------------------------------------------- */
+
+div.stButton{
+    display:flex;
+    justify-content:center;
+}
+
+div.stButton > button{
+
+    width:320px !important;
+    height:560px !important;
+
+    background:rgba(0,0,0,0.95) !important;
+
+    border-radius:160px 160px 12px 12px !important;
+
+    border:3px solid transparent !important;
+
+    padding-top:180px !important;
+    padding-bottom:40px !important;
+
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:flex-start !important;
+    align-items:center !important;
+
+    transition:all .35s ease !important;
+}
+
+/* testo principale */
+
+div.stButton > button strong{
+
+    font-family:'Cinzel', serif !important;
+
+    font-size:2rem !important;
+
+    letter-spacing:4px;
+
+    margin-bottom:25px;
+
+    display:block;
+}
+
+/* sottotitolo */
+
+div.stButton > button em{
+
+    font-family:'Montserrat', sans-serif !important;
+
+    font-style:normal !important;
+
+    text-transform:uppercase;
+
+    letter-spacing:4px;
+
+    font-size:0.9rem;
+
+    color:rgba(255,255,255,0.55);
+}
+
+/* --------------------------------------------------
+   DISCIPVLVS
+-------------------------------------------------- */
+
+div[data-testid="column"]:nth-child(2) button{
+
+    border-color:#00f3ff !important;
+
+    box-shadow:
+        0 0 8px #00f3ff,
+        0 0 20px rgba(0,243,255,.9),
+        0 0 50px rgba(0,243,255,.6),
+        0 0 100px rgba(0,243,255,.25) !important;
+}
+
+div[data-testid="column"]:nth-child(2) button strong{
+
+    color:#00f3ff !important;
+
+    text-shadow:
+        0 0 10px #00f3ff,
+        0 0 20px #00f3ff;
+}
+
+div[data-testid="column"]:nth-child(2) button:hover{
+
+    transform:translateY(-12px) scale(1.03);
+
+    box-shadow:
+        0 0 12px #00f3ff,
+        0 0 30px #00f3ff,
+        0 0 70px #00f3ff,
+        0 0 140px rgba(0,243,255,.4) !important;
+}
+
+/* --------------------------------------------------
+   GLADIATOR
+-------------------------------------------------- */
+
+div[data-testid="column"]:nth-child(3) button{
+
+    border-color:#b537f2 !important;
+
+    box-shadow:
+        0 0 8px #b537f2,
+        0 0 20px rgba(181,55,242,.9),
+        0 0 50px rgba(181,55,242,.6),
+        0 0 100px rgba(181,55,242,.25) !important;
+}
+
+div[data-testid="column"]:nth-child(3) button strong{
+
+    color:#d884ff !important;
+
+    text-shadow:
+        0 0 10px #b537f2,
+        0 0 20px #b537f2;
+}
+
+div[data-testid="column"]:nth-child(3) button:hover{
+
+    transform:translateY(-12px) scale(1.03);
+
+    box-shadow:
+        0 0 12px #b537f2,
+        0 0 30px #b537f2,
+        0 0 70px #b537f2,
+        0 0 140px rgba(181,55,242,.4) !important;
+}
+
+/* --------------------------------------------------
+   IMPERATOR
+-------------------------------------------------- */
+
+div[data-testid="column"]:nth-child(4) button{
+
+    border-color:#ff00c8 !important;
+
+    box-shadow:
+        0 0 8px #ff00c8,
+        0 0 20px rgba(255,0,200,.9),
+        0 0 50px rgba(255,0,200,.6),
+        0 0 100px rgba(255,0,200,.25) !important;
+}
+
+div[data-testid="column"]:nth-child(4) button strong{
+
+    color:#ff70d6 !important;
+
+    text-shadow:
+        0 0 10px #ff00c8,
+        0 0 20px #ff00c8;
+}
+
+div[data-testid="column"]:nth-child(4) button:hover{
+
+    transform:translateY(-12px) scale(1.03);
+
+    box-shadow:
+        0 0 12px #ff00c8,
+        0 0 30px #ff00c8,
+        0 0 70px #ff00c8,
+        0 0 140px rgba(255,0,200,.4) !important;
+}
+
+/* --------------------------------------------------
+   PAGINA ARENA
+-------------------------------------------------- */
+
+.arena-title{
+    text-align:center;
+    margin-top:70px;
+}
 
 </style>
 """
-st.markdown(euphoria_css, unsafe_allow_html=True)
 
-# --- INIZIALIZZAZIONE STATO DI NAVIGAZIONE ---
-if 'level' not in st.session_state:
+st.markdown(css, unsafe_allow_html=True)
+
+# ==================================================
+# STATO
+# ==================================================
+
+if "level" not in st.session_state:
     st.session_state.level = None
 
-# --- LOBBY CON LE TRE PORTE ---
+# ==================================================
+# HOME
+# ==================================================
+
 if st.session_state.level is None:
-    
-    # Intestazione con titolo centrato
-    st.markdown("""
+
+    st.markdown(
+        """
         <div class="title-wrapper">
             <h1 class="neon-title">LUDUS</h1>
-            <p class="subtitle">scegli il tuo destino</p>
+            <div class="subtitle">scegli il tuo destino</div>
         </div>
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True
+    )
 
-    # Griglia di colonne per centrare perfettamente gli archi
-    _, col1, col2, col3, _ = st.columns([0.5, 2, 2, 2, 0.5])
+    spacer1, col1, col2, col3, spacer2 = st.columns(
+        [0.6, 2, 2, 2, 0.6]
+    )
 
     with col1:
-        if st.button("**DISCIPVLVS**\n\n*beginner*", key="btn_discipulus"):
+        if st.button(
+            "**DISCIPVLVS**\n\n*beginner*",
+            key="discipulus"
+        ):
             st.session_state.level = "Discipulus"
             st.rerun()
 
     with col2:
-        if st.button("**GLADIATOR**\n\n*intermediate*", key="btn_gladiator"):
+        if st.button(
+            "**GLADIATOR**\n\n*intermediate*",
+            key="gladiator"
+        ):
             st.session_state.level = "Gladiator"
             st.rerun()
 
     with col3:
-        if st.button("**IMPERATOR**\n\n*pro*", key="btn_imperator"):
+        if st.button(
+            "**IMPERATOR**\n\n*pro*",
+            key="imperator"
+        ):
             st.session_state.level = "Imperator"
             st.rerun()
 
-# --- SCHERMATA DEL LIVELLO ATTIVO (TEST) ---
+# ==================================================
+# ARENA
+# ==================================================
+
 else:
-    # Mostra l'arena del livello selezionato
-    st.markdown(f"""
-        <div class="title-wrapper">
-            <h1 class="neon-title" style="font-size: 4rem;">{st.session_state.level}</h1>
-            <p class="subtitle">arena attiva</p>
+
+    st.markdown(
+        f"""
+        <div class="arena-title">
+            <h1 class="neon-title" style="font-size:4rem;">
+                {st.session_state.level}
+            </h1>
+
+            <div class="subtitle">
+                arena attiva
+            </div>
         </div>
-    """, unsafe_allow_html=True)
-    
-    # Spazio per gli esercizi
-    st.info(f"Benvenuto/a nell'arena {st.session_state.level}. Qui inseriremo gli esercizi di latino!")
-    
-    # Pulsante per tornare alla selezione delle porte
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.markdown("### ⚔️ Esercizi in arrivo")
+
+    st.info(
+        f"Benvenuto nell'arena {st.session_state.level}. "
+        "Qui appariranno gli esercizi di latino."
+    )
+
     st.markdown("<br><br>", unsafe_allow_html=True)
+
     if st.button("← Torna alla selezione"):
         st.session_state.level = None
         st.rerun()
