@@ -1,8 +1,8 @@
 import streamlit as st
 
-# ==================================================
+# ======================================================
 # CONFIG
-# ==================================================
+# ======================================================
 
 st.set_page_config(
     page_title="Ludus",
@@ -11,34 +11,40 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ==================================================
+# ======================================================
 # SESSION STATE
-# ==================================================
+# ======================================================
 
-if "level" not in st.session_state:
-    st.session_state.level = None
+if "page" not in st.session_state:
+    st.session_state.page = "home"
 
-# ==================================================
+# ======================================================
 # CSS
-# ==================================================
+# ======================================================
 
 st.markdown("""
 <style>
 
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:wght@300;500&display=swap');
 
-/* Nasconde elementi Streamlit */
-
 header,
 footer,
 #MainMenu,
 [data-testid="stToolbar"]{
-    visibility:hidden;
+    display:none !important;
 }
 
-/* Pagina */
+.block-container{
+    padding-top:0.5rem !important;
+    max-width:100% !important;
+}
+
+/* ================================================== */
+/* SFONDO */
+/* ================================================== */
 
 .stApp{
+
     background:
     radial-gradient(
         circle at center,
@@ -47,182 +53,180 @@ footer,
         #020004 100%
     );
 
-    overflow:hidden;
+    color:white;
 }
 
-.block-container{
-    padding-top:0.5rem;
-    max-width:100%;
-}
+/* ================================================== */
+/* TITOLO */
+/* ================================================== */
 
-/* Titolo */
+.title{
 
-.title-wrapper{
     text-align:center;
-    margin-top:5px;
-    margin-bottom:25px;
+
+    margin-top:10px;
+    margin-bottom:20px;
 }
 
-.main-title{
+.title h1{
+
     font-family:'Cinzel', serif;
-    font-size:4.5rem;
+
+    font-size:4.8rem;
+
     letter-spacing:12px;
+
+    margin-bottom:0;
+
     color:white;
 
     text-shadow:
         0 0 10px #b537f2,
         0 0 25px #b537f2,
         0 0 60px #ff00c8;
-
-    margin-bottom:0;
 }
 
-.subtitle{
-    font-family:'Montserrat', sans-serif;
-    color:#00f0ff;
-    letter-spacing:6px;
+.title p{
+
+    color:#00eaff;
+
+    letter-spacing:7px;
+
     text-transform:uppercase;
 
+    font-family:'Montserrat', sans-serif;
+
     text-shadow:
-        0 0 10px #00f0ff;
+        0 0 12px #00eaff;
 }
 
-/* PORTA BASE */
+/* ================================================== */
+/* BOTTONI-PORTE */
+/* ================================================== */
 
-div.stButton > button {
+div.stButton > button{
 
-    width:240px !important;
-    height:340px !important;
-
-    background:#000 !important;
+    width:250px !important;
+    height:350px !important;
 
     border-radius:
-        120px
-        120px
+        125px
+        125px
         12px
         12px !important;
 
+    background:#000 !important;
+
     font-family:'Cinzel', serif !important;
+
     font-size:2rem !important;
+
     font-weight:700 !important;
 
-    transition:all .3s ease !important;
+    transition:0.3s !important;
+
+    border-width:3px !important;
 }
 
-/* DISCIPVLVS */
+div.stButton > button:hover{
 
-button[kind="secondary"]:nth-of-type(1){
+    transform:translateY(-8px) scale(1.02);
+}
 
-    border:4px solid #00f0ff !important;
+/* ================================================== */
+/* CIANO */
+/* ================================================== */
 
-    color:#00f0ff !important;
+button[kind="secondary"]{
+
+    border-color:#00eaff !important;
+
+    color:#00eaff !important;
 
     text-shadow:
-        0 0 10px #00f0ff,
-        0 0 20px #00f0ff !important;
+        0 0 10px #00eaff,
+        0 0 20px #00eaff,
+        0 0 35px #00eaff !important;
 
     box-shadow:
-        0 0 5px #00f0ff,
-        0 0 15px #00f0ff,
-        0 0 30px #00f0ff,
-        0 0 60px #00f0ff,
-        0 0 120px rgba(0,240,255,.7) !important;
+        0 0 5px #00eaff,
+        0 0 15px #00eaff,
+        0 0 35px rgba(0,234,255,.9),
+        0 0 70px rgba(0,234,255,.6),
+        0 0 120px rgba(0,234,255,.4) !important;
 }
 
-/* GLADIATOR */
+</style>
+""", unsafe_allow_html=True)
 
-button[kind="secondary"]:nth-of-type(2){
-
-    border:4px solid #b537f2 !important;
-
-    color:#d884ff !important;
-
-    text-shadow:
-        0 0 10px #b537f2,
-        0 0 20px #b537f2 !important;
-
-    box-shadow:
-        0 0 5px #b537f2,
-        0 0 15px #b537f2,
-        0 0 30px #b537f2,
-        0 0 60px #b537f2,
-        0 0 120px rgba(181,55,242,.7) !important;
-}
-
-/* IMPERATOR */
-
-button[kind="secondary"]:nth-of-type(3){
-
-    border:4px solid #ff00c8 !important;
-
-    color:#ff70d6 !important;
-
-    text-shadow:
-        0 0 10px #ff00c8,
-        0 0 20px #ff00c8 !important;
-
-    box-shadow:
-        0 0 5px #ff00c8,
-        0 0 15px #ff00c8,
-        0 0 30px #ff00c8,
-        0 0 60px #ff00c8,
-        0 0 120px rgba(255,0,200,.7) !important;
-}
-
-# ==================================================
+# ======================================================
 # HOME
-# ==================================================
+# ======================================================
 
-if st.session_state.level is None:
+if st.session_state.page == "home":
 
     st.markdown("""
-    <div class="title-wrapper">
-        <div class="main-title">LUDUS</div>
-        <div class="subtitle">scegli il tuo destino</div>
+    <div class="title">
+        <h1>LUDUS</h1>
+        <p>Scegli il tuo destino</p>
     </div>
     """, unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns(3)
+    c1, c2, c3 = st.columns([1,1,1])
 
-    with col1:
+    with c1:
         if st.button("DISCIPVLVS", key="disc"):
-            st.session_state.level = "Discipulus"
+            st.session_state.page = "discipulus"
             st.rerun()
 
-    with col2:
+    with c2:
         if st.button("GLADIATOR", key="glad"):
-            st.session_state.level = "Gladiator"
+            st.session_state.page = "gladiator"
             st.rerun()
 
-    with col3:
+    with c3:
         if st.button("IMPERATOR", key="imp"):
-            st.session_state.level = "Imperator"
+            st.session_state.page = "imperator"
             st.rerun()
 
-# ==================================================
-# SCHERMATE
-# ==================================================
+# ======================================================
+# DISCIPVLVS
+# ======================================================
 
-else:
+elif st.session_state.page == "discipulus":
 
-    st.markdown(f"""
-    <div class="title-wrapper">
-        <div class="main-title" style="font-size:3.5rem;">
-            {st.session_state.level}
-        </div>
-        <div class="subtitle">
-            Arena Attiva
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.title("DISCIPVLVS")
 
-    st.info(
-        f"Benvenuto nell'arena {st.session_state.level}. "
-        "Qui inserirai gli esercizi di latino."
-    )
+    st.info("Livello principiante")
 
-    st.write("")
+    if st.button("← Torna"):
+        st.session_state.page = "home"
+        st.rerun()
 
-    if st.button("← Torna alle porte"):
-        st.session_state.level = None
+# ======================================================
+# GLADIATOR
+# ======================================================
+
+elif st.session_state.page == "gladiator":
+
+    st.title("GLADIATOR")
+
+    st.info("Livello intermedio")
+
+    if st.button("← Torna"):
+        st.session_state.page = "home"
+        st.rerun()
+
+# ======================================================
+# IMPERATOR
+# ======================================================
+
+elif st.session_state.page == "imperator":
+
+    st.title("IMPERATOR")
+
+    st.info("Livello avanzato")
+
+    if st.button("← Torna"):
+        st.session_state.page = "home"
         st.rerun()
