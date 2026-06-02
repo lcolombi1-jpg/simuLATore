@@ -1,232 +1,161 @@
 import streamlit as st
 
-# ======================================================
-# CONFIG
-# ======================================================
-
 st.set_page_config(
     page_title="Ludus",
     page_icon="🏛️",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    layout="wide"
 )
-
-# ======================================================
-# SESSION STATE
-# ======================================================
-
-if "page" not in st.session_state:
-    st.session_state.page = "home"
-
-# ======================================================
-# CSS
-# ======================================================
 
 st.markdown("""
 <style>
 
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:wght@300;500&display=swap');
 
-header,
-footer,
-#MainMenu,
-[data-testid="stToolbar"]{
-    display:none !important;
+header, footer, #MainMenu {
+    visibility:hidden;
+}
+
+.stApp{
+    background:
+    radial-gradient(circle at center,
+    #19002f 0%,
+    #0a0015 50%,
+    #020004 100%);
 }
 
 .block-container{
-    padding-top:0.5rem !important;
-    max-width:100% !important;
+    max-width:100%;
+    padding-top:0rem;
 }
-
-/* ================================================== */
-/* SFONDO */
-/* ================================================== */
-
-.stApp{
-
-    background:
-    radial-gradient(
-        circle at center,
-        #1c0033 0%,
-        #0b0016 45%,
-        #020004 100%
-    );
-
-    color:white;
-}
-
-/* ================================================== */
-/* TITOLO */
-/* ================================================== */
 
 .title{
-
     text-align:center;
-
-    margin-top:10px;
-    margin-bottom:20px;
+    margin-top:20px;
 }
 
 .title h1{
-
     font-family:'Cinzel', serif;
-
-    font-size:4.8rem;
-
-    letter-spacing:12px;
-
-    margin-bottom:0;
-
+    font-size:6rem;
     color:white;
+    letter-spacing:10px;
 
     text-shadow:
-        0 0 10px #b537f2,
-        0 0 25px #b537f2,
-        0 0 60px #ff00c8;
+        0 0 10px #ff00ff,
+        0 0 40px #ff00ff;
 }
 
-.title p{
-
-    color:#00eaff;
-
-    letter-spacing:7px;
-
-    text-transform:uppercase;
-
-    font-family:'Montserrat', sans-serif;
-
-    text-shadow:
-        0 0 12px #00eaff;
+.subtitle{
+    color:#00f0ff;
+    text-align:center;
+    letter-spacing:8px;
+    margin-bottom:50px;
 }
 
-/* ================================================== */
-/* BOTTONI-PORTE */
-/* ================================================== */
+.gates{
+    display:flex;
+    justify-content:center;
+    gap:80px;
+}
 
-div.stButton > button{
-
-    width:250px !important;
-    height:350px !important;
+.gate{
+    width:260px;
+    height:520px;
 
     border-radius:
-        125px
-        125px
-        12px
-        12px !important;
+        130px
+        130px
+        10px
+        10px;
 
-    background:#000 !important;
+    text-decoration:none;
 
-    font-family:'Cinzel', serif !important;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
 
-    font-size:2rem !important;
-
-    font-weight:700 !important;
-
-    transition:0.3s !important;
-
-    border-width:3px !important;
+    background:transparent;
 }
 
-div.stButton > button:hover{
-
-    transform:translateY(-8px) scale(1.02);
+.gate-title{
+    font-family:'Cinzel', serif;
+    font-size:3rem;
 }
 
-/* ================================================== */
-/* CIANO */
-/* ================================================== */
+.gate-sub{
+    margin-top:20px;
+    font-size:1rem;
+    letter-spacing:6px;
+    color:rgba(255,255,255,.4);
+}
 
-button[kind="secondary"]{
-
-    border-color:#00eaff !important;
-
-    color:#00eaff !important;
-
-    text-shadow:
-        0 0 10px #00eaff,
-        0 0 20px #00eaff,
-        0 0 35px #00eaff !important;
+.cyan{
+    border:4px solid #00f0ff;
 
     box-shadow:
-        0 0 5px #00eaff,
-        0 0 15px #00eaff,
-        0 0 35px rgba(0,234,255,.9),
-        0 0 70px rgba(0,234,255,.6),
-        0 0 120px rgba(0,234,255,.4) !important;
+        0 0 15px #00f0ff,
+        0 0 50px #00f0ff,
+        0 0 100px rgba(0,240,255,.5);
+}
+
+.cyan .gate-title{
+    color:#00f0ff;
+}
+
+.violet{
+    border:4px solid #d64dff;
+
+    box-shadow:
+        0 0 15px #d64dff,
+        0 0 50px #d64dff,
+        0 0 100px rgba(214,77,255,.5);
+}
+
+.violet .gate-title{
+    color:#d64dff;
+}
+
+.pink{
+    border:4px solid #ff0077;
+
+    box-shadow:
+        0 0 15px #ff0077,
+        0 0 50px #ff0077,
+        0 0 100px rgba(255,0,119,.5);
+}
+
+.pink .gate-title{
+    color:#ff0077;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ======================================================
-# HOME
-# ======================================================
+st.markdown("""
+<div class="title">
+<h1>LUDUS</h1>
+</div>
 
-if st.session_state.page == "home":
+<div class="subtitle">
+scegli il tuo destino
+</div>
 
-    st.markdown("""
-    <div class="title">
-        <h1>LUDUS</h1>
-        <p>Scegli il tuo destino</p>
-    </div>
-    """, unsafe_allow_html=True)
+<div class="gates">
 
-    c1, c2, c3 = st.columns([1,1,1])
+<a class="gate cyan" href="/Discipulus">
+<div class="gate-title">DISCIPVLVS</div>
+<div class="gate-sub">BEGINNER</div>
+</a>
 
-    with c1:
-        if st.button("DISCIPVLVS", key="disc"):
-            st.session_state.page = "discipulus"
-            st.rerun()
+<a class="gate violet" href="/Gladiator">
+<div class="gate-title">GLADIATOR</div>
+<div class="gate-sub">INTERMEDIATE</div>
+</a>
 
-    with c2:
-        if st.button("GLADIATOR", key="glad"):
-            st.session_state.page = "gladiator"
-            st.rerun()
+<a class="gate pink" href="/Imperator">
+<div class="gate-title">IMPERATOR</div>
+<div class="gate-sub">PRO</div>
+</a>
 
-    with c3:
-        if st.button("IMPERATOR", key="imp"):
-            st.session_state.page = "imperator"
-            st.rerun()
-
-# ======================================================
-# DISCIPVLVS
-# ======================================================
-
-elif st.session_state.page == "discipulus":
-
-    st.title("DISCIPVLVS")
-
-    st.info("Livello principiante")
-
-    if st.button("← Torna"):
-        st.session_state.page = "home"
-        st.rerun()
-
-# ======================================================
-# GLADIATOR
-# ======================================================
-
-elif st.session_state.page == "gladiator":
-
-    st.title("GLADIATOR")
-
-    st.info("Livello intermedio")
-
-    if st.button("← Torna"):
-        st.session_state.page = "home"
-        st.rerun()
-
-# ======================================================
-# IMPERATOR
-# ======================================================
-
-elif st.session_state.page == "imperator":
-
-    st.title("IMPERATOR")
-
-    st.info("Livello avanzato")
-
-    if st.button("← Torna"):
-        st.session_state.page = "home"
-        st.rerun()
+</div>
+""", unsafe_allow_html=True)
